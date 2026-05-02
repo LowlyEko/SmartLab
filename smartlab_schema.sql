@@ -3,7 +3,7 @@
 -- ============================================================
 
 CREATE TABLE users (
-    user_id         SERIAL          PRIMARY KEY,
+    user_id         INT AUTO_INCREMENT PRIMARY KEY,
     student_number  VARCHAR(30)     UNIQUE,
     username        VARCHAR(60)     NOT NULL UNIQUE,
     first_name      VARCHAR(80)     NOT NULL,
