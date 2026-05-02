@@ -10,6 +10,7 @@ CREATE TABLE users (
     middle_name     VARCHAR(80),
     last_name       VARCHAR(80)     NOT NULL,
     email           VARCHAR(150)    NOT NULL UNIQUE,
+    password_hash   VARCHAR(255),
     contact_number  VARCHAR(20),
     college         VARCHAR(150),                             
     user_type       VARCHAR(20)     NOT NULL
