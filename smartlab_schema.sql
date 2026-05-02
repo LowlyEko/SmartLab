@@ -18,8 +18,8 @@ CREATE TABLE users (
     year_level      SMALLINT        CHECK (year_level BETWEEN 1 AND 6),
     section         VARCHAR(20),
     is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+    created_at      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -35,8 +35,8 @@ CREATE TABLE inventory_items (
     amount          DECIMAL(12,4)   NOT NULL DEFAULT 0 CHECK (amount >= 0),
     unit            VARCHAR(30),
     is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+    created_at      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- ── Glassware detail ────────────────────────────────────────
@@ -54,8 +54,8 @@ CREATE TABLE inventory_glassware_brands (
     brand_name      VARCHAR(100)    NOT NULL,
     amount          INT             NOT NULL DEFAULT 0 CHECK (amount >= 0),
     remarks         TEXT,
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    created_at      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP       NOT NULL DEFAULT NOW(),
     UNIQUE (item_id, brand_name)
 );
 
@@ -109,7 +109,7 @@ CREATE TABLE reservations (
     reserving_student   INT             NOT NULL REFERENCES users(user_id) ON DELETE RESTRICT,
     professor_id        INT             REFERENCES users(user_id) ON DELETE SET NULL,
     custodian_id        INT             REFERENCES users(user_id) ON DELETE SET NULL,
-    date_requested      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    date_requested      TIMESTAMP       NOT NULL DEFAULT NOW(),
     date_needed         DATE            NOT NULL,
     time_start          TIME            NOT NULL,
     time_end            TIME            NOT NULL,
@@ -118,8 +118,8 @@ CREATE TABLE reservations (
                             CHECK (status IN ('to_review', 'allowed', 'rejected', 'conditional')),
     conditions_note     TEXT,
     rejection_reason    TEXT,
-    created_at          TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at          TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    created_at          TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP       NOT NULL DEFAULT NOW(),
     CHECK (time_end > time_start)
 );
 
@@ -154,12 +154,12 @@ CREATE TABLE accountability (
     item_description    TEXT            NOT NULL,
     specifics           TEXT,
     quantity_broken     INT             NOT NULL DEFAULT 1 CHECK (quantity_broken > 0),
-    date_time_broken    TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+    date_time_broken    TIMESTAMP       NOT NULL DEFAULT NOW(),
     resolution_status   VARCHAR(20)     NOT NULL DEFAULT 'pending'
                             CHECK (resolution_status IN ('pending', 'replaced', 'paid', 'waived')),
     resolution_notes    TEXT,
-    created_at          TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at          TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+    created_at          TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -173,7 +173,7 @@ CREATE TABLE activity_log (
     target_table    VARCHAR(60),
     target_id       INT,
     details         JSONB,
-    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW()
+    created_at      TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -197,35 +197,4 @@ CREATE INDEX idx_accountability_item        ON accountability(item_id);
 CREATE INDEX idx_activity_log_actor         ON activity_log(actor_id);
 CREATE INDEX idx_activity_log_target        ON activity_log(target_table, target_id);
 
--- ============================================================
---  SECTION 7: SAMPLE SEED DATA
--- ============================================================
-
-INSERT INTO users (username, first_name, middle_name, last_name, email, password_hash, user_type) VALUES
-    ('admin',        'Lab',      NULL,      'Admin',  'admin@smartlab.edu',    'changeme_hash', 'admin'),
-    ('m.santos',     'Maria',    'Cruz',    'Santos', 'm.santos@smartlab.edu', 'changeme_hash', 'staff'),
-    ('dr.jreyes',    'Jose',     'Antonio', 'Reyes',  'j.reyes@smartlab.edu',  'changeme_hash', 'professor');
-
-INSERT INTO inventory_items (category, name, location, amount, unit) VALUES
-    ('glassware',  'Erlenmeyer Flask',   'Cabinet A-1', 20, 'pcs'),
-    ('glassware',  'Beaker',             'Cabinet A-2', 35, 'pcs'),
-    ('equipment',  'Analytical Balance', 'Room 101',     2, 'pcs'),
-    ('apparatus',  'Bunsen Burner',      'Cabinet B-1', 10, 'pcs'),
-    ('supply',     'Distilled Water',    'Storage C',   50, 'L'),
-    ('chemical',   'Hydrochloric Acid',  'Chem Vault',   5, 'L');
-
-INSERT INTO inventory_glassware_details (item_id, description) VALUES
-    (1, '250 mL Erlenmeyer flask with stopper'),
-    (2, '500 mL glass beaker, graduated');
-
-INSERT INTO inventory_glassware_brands (item_id, brand_name, amount, remarks) VALUES
-    (1, 'Pyrex',  12, 'Good condition'),
-    (1, 'Kimax',   8, '2 with minor chips'),
-    (2, 'Schott', 20, 'New stock'),
-    (2, 'Pyrex',  15, 'Good condition');
-
-INSERT INTO inventory_equipment_details
-    (item_id, brand_model, serial_number, property_number, equipment_code, calibration_date, calibration_frequency)
-VALUES
-    (3, 'Ohaus Pioneer PA214', 'SN-00123', 'PN-2024-003', 'EQ-BAL-001', '2025-01-15', 'Every 6 months');
 
