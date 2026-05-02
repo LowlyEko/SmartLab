@@ -10,11 +10,10 @@ CREATE TABLE users (
     middle_name     VARCHAR(80),
     last_name       VARCHAR(80)     NOT NULL,
     email           VARCHAR(150)    NOT NULL UNIQUE,
-    password_hash   TEXT            NOT NULL,
     contact_number  VARCHAR(20),
-    college         VARCHAR(150),                               -- free-text, no FK
+    college         VARCHAR(150),                             
     user_type       VARCHAR(20)     NOT NULL
-                        CHECK (user_type IN ('student', 'staff', 'admin', 'professor')),
+                        CHECK (user_type IN ('student', 'admin')),
     year_level      SMALLINT        CHECK (year_level BETWEEN 1 AND 6),
     section         VARCHAR(20),
     is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
