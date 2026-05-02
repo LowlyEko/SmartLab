@@ -14,14 +14,13 @@ CREATE TABLE users (
     contact_number  VARCHAR(20),
     college         VARCHAR(150),                             
     user_type       VARCHAR(20)     NOT NULL
-                        CHECK (user_type IN ('student', 'admin')),
+                        CHECK (user_type IN ('student', 'laboratory_staff', 'laboratory_chemist', 'admin')),
     year_level      SMALLINT        CHECK (year_level BETWEEN 1 AND 6),
     section         VARCHAR(20),
     is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
     created_at      TIMESTAMP       NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP       NOT NULL DEFAULT NOW()
 );
-
 -- ============================================================
 --  SECTION 2: CENTRALIZED INVENTORY
 -- ============================================================
