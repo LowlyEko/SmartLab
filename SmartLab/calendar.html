@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS Laboratory – Calendar</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="calendar.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+</head>
+<body>
+  <nav class="sidebar close">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="CAS Logo.png" alt="Logo" onerror="this.style.display='none'">
+        </span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+        </div>
+        <i class='bx bx-chevron-right toggle'></i>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="dashboard.html" data-page="dashboard"><i class='bx bxs-dashboard icon'></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservation.html" data-page="reservation"><i class='bx bx-calendar-check icon'></i><span class="text nav-text">Reservation</span></a></li>
+          <li class="nav-link"><a href="calendar.html" data-page="calendar"><i class='bx bx-time icon'></i><span class="text nav-text">Calendar</span></a></li>
+          <li class="nav-link"><a href="accountability.html" data-page="accountability"><i class='bx bx-shield icon'></i><span class="text nav-text">Accountability</span></a></li>
+          <li class="nav-link"><a href="inventory.html" data-page="inventory"><span class="material-symbols-outlined icon">inventory_2</span><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="transaction.html" data-page="transaction"><i class='bx bx-file icon'></i><span class="text nav-text">Transaction</span></a></li>
+        </ul>
+      </div>
+      <div class="botton-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class='bx bx-moon icon moon'></i>
+            <i class='bx bx-sun icon sun'></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <header>
+      <div class="header-icons">
+        <i class="fa-solid fa-bell"></i>
+        <i class="fa-solid fa-comment"></i>
+        <div class="profile">
+          <img src="profile.jpg" alt="">
+          <i class="fa-solid fa-angle-down"></i>
+          <ul class="dropdown-content">
+            <li><a href="#">Profile</a></li>
+            <li><a href="Login-Register.html">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <h1>Calendar</h1>
+
+      <!-- Toolbar Row 1: Filters -->
+      <div class="cal-toolbar-filters">
+        <!-- View dropdown -->
+        <div class="cal-view-dropdown" id="cal-view-dropdown">
+          <button class="cal-view-btn" id="cal-view-btn">
+            <i class='bx bx-calendar'></i>
+            <span id="cal-view-label">Month</span>
+            <i class='bx bx-chevron-down cal-view-chevron'></i>
+          </button>
+          <div class="cal-view-menu" id="cal-view-menu">
+            <div class="cal-view-option active" data-view="month"><i class='bx bx-calendar'></i> Month</div>
+            <div class="cal-view-option" data-view="week"><i class='bx bx-calendar-week'></i> Week</div>
+            <div class="cal-view-option" data-view="day"><i class='bx bx-time-five'></i> Day</div>
+          </div>
+        </div>
+
+        <!-- Custom category select -->
+        <div class="cal-custom-select" id="cal-custom-select">
+          <button class="cal-select-btn" id="cal-select-btn">
+            <span id="cal-select-label">All categories</span>
+            <i class='bx bx-chevron-down cal-select-chevron'></i>
+          </button>
+          <div class="cal-select-menu" id="cal-select-menu">
+            <div class="cal-select-option active" data-filter="all">
+              <span class="cal-sel-dot" style="background:#6b7280"></span> All categories
+            </div>
+            <div class="cal-select-option" data-filter="res">
+              <span class="cal-sel-dot" style="background:#3b82f6"></span> Reservation
+            </div>
+            <div class="cal-select-option" data-filter="tra">
+              <span class="cal-sel-dot" style="background:#22c55e"></span> Transaction
+            </div>
+            <div class="cal-select-option" data-filter="mai">
+              <span class="cal-sel-dot" style="background:#eab308"></span> Maintenance
+            </div>
+            <div class="cal-select-option" data-filter="dam">
+              <span class="cal-sel-dot" style="background:#ef4444"></span> Damage Report
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar Row 2: Navigation -->
+      <div class="cal-toolbar">
+        <div class="cal-toolbar-left">
+          <button class="cal-nav-btn" id="cal-prev">&#8249;</button>
+          <button class="cal-today-btn" id="cal-today">Today</button>
+          <button class="cal-nav-btn" id="cal-next">&#8250;</button>
+        </div>
+
+        <!-- Centered month label -->
+        <span class="cal-month-label" id="cal-month-label"></span>
+
+        <button class="cal-add-btn" id="cal-add-btn">
+          <i class='bx bx-plus'></i> Add Event
+        </button>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="cal-grid" id="cal-grid">
+        <div class="cal-dow">Sun</div>
+        <div class="cal-dow">Mon</div>
+        <div class="cal-dow">Tue</div>
+        <div class="cal-dow">Wed</div>
+        <div class="cal-dow">Thu</div>
+        <div class="cal-dow">Fri</div>
+        <div class="cal-dow">Sat</div>
+      </div>
+
+      <!-- Legend at the bottom -->
+      <div class="cal-legend">
+        <div class="cal-leg-item"><span class="cal-leg-dot" style="background:#3b82f6"></span>Reservation</div>
+        <div class="cal-leg-item"><span class="cal-leg-dot" style="background:#22c55e"></span>Transaction</div>
+        <div class="cal-leg-item"><span class="cal-leg-dot" style="background:#eab308"></span>Maintenance</div>
+        <div class="cal-leg-item"><span class="cal-leg-dot" style="background:#ef4444"></span>Damage Report</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="cal-overlay" id="cal-overlay">
+    <div class="cal-modal" id="cal-modal">
+      <div class="cal-modal-header">
+        <div class="cal-modal-title" id="cal-modal-title">Events</div>
+        <button class="cal-modal-close" id="cal-modal-close">&#x2715;</button>
+      </div>
+      <div class="cal-modal-date-label" id="cal-modal-date-label"></div>
+
+      <div class="cal-event-list" id="cal-event-list"></div>
+
+      <hr class="cal-form-sep">
+
+      <div class="cal-form-section-label">Add New Event</div>
+
+      <div class="cal-field">
+        <label for="cal-ev-label">Event Name</label>
+        <input type="text" id="cal-ev-label" placeholder="Enter event name">
+      </div>
+      <div class="cal-field">
+        <label for="cal-ev-type">Type</label>
+        <select id="cal-ev-type">
+          <option value="res">Reservation</option>
+          <option value="tra">Transaction</option>
+          <option value="mai">Maintenance</option>
+          <option value="dam">Damage Report</option>
+        </select>
+      </div>
+      <div class="cal-field">
+        <label for="cal-ev-date">Date</label>
+        <input type="date" id="cal-ev-date">
+      </div>
+
+      <div class="cal-modal-actions">
+        <button class="cal-btn-cancel" id="cal-btn-cancel">Cancel</button>
+        <button class="cal-btn-save" id="cal-btn-save">Add Event</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="calendar.js"></script>
+</body>
+</html>

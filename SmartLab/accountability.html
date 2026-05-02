@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS Laboratory – Accountability</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="accountability.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+</head>
+<body>
+
+  <!-- ===== Sidebar ===== -->
+  <nav class="sidebar close">
+    <header>
+      <div class="image-text">
+        <span class="image"><img src="CAS Logo.png" alt="Logo" onerror="this.style.display='none'"></span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+        </div>
+        <i class='bx bx-chevron-right toggle'></i>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="dashboard.html"      data-page="dashboard"><i class='bx bxs-dashboard icon'></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservation.html"    data-page="reservation"><i class='bx bx-calendar-check icon'></i><span class="text nav-text">Reservation</span></a></li>
+          <li class="nav-link"><a href="calendar.html"       data-page="calendar"><i class='bx bx-time icon'></i><span class="text nav-text">Calendar</span></a></li>
+          <li class="nav-link"><a href="accountability.html" data-page="accountability"><i class='bx bx-shield icon'></i><span class="text nav-text">Accountability</span></a></li>
+          <li class="nav-link"><a href="inventory.html"      data-page="inventory"><span class="material-symbols-outlined icon">inventory_2</span><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="transaction.html"    data-page="transaction"><i class='bx bx-file icon'></i><span class="text nav-text">Transaction</span></a></li>
+        </ul>
+      </div>
+      <div class="botton-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class='bx bx-moon icon moon'></i>
+            <i class='bx bx-sun icon sun'></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Main Content ===== -->
+  <div class="main-content">
+    <header>
+      <div class="header-icons">
+        <i class="fa-solid fa-bell"></i>
+        <i class="fa-solid fa-comment"></i>
+        <div class="profile">
+          <img src="profile.jpg" alt="">
+          <i class="fa-solid fa-angle-down"></i>
+          <ul class="dropdown-content">
+            <li><a href="#">Profile</a></li>
+            <li><hr></li>
+            <li><a href="Login-Register.html">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <h1>Accountability</h1>
+
+      <!-- Summary Cards -->
+      <div class="accountability-summary" style="margin-top:24px;">
+        <div class="summary-card">
+          <div class="summary-icon total"><i class='bx bx-list-ul'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Total Records</div>
+            <div class="summary-value" id="cnt-total">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon active"><i class='bx bx-time-five'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Active</div>
+            <div class="summary-value" id="cnt-active">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon resolved"><i class='bx bx-check-shield'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Resolved</div>
+            <div class="summary-value" id="cnt-resolved">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon overdue"><i class='bx bx-error-alt'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Overdue</div>
+            <div class="summary-value" id="cnt-overdue">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="accountability-toolbar">
+        <div class="toolbar-left">
+          <div class="search-box">
+            <i class='bx bx-search'></i>
+            <input type="text" id="search-input" placeholder="Search borrower, item, ID…">
+          </div>
+          <select class="filter-select" id="filter-status">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-add-accountability" onclick="window.openAddModal()">
+            <i class='bx bx-plus'></i> Add Record
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="accountability-table-wrapper">
+        <div class="table-header-bar">
+          <h2>Accountability Records</h2>
+          <span class="table-meta" id="table-meta"></span>
+        </div>
+        <table class="accountability-table">
+          <thead>
+            <tr>
+              <th>Borrower</th>
+              <th>Record ID</th>
+              <th>Item</th>
+              <th style="text-align:center;">Qty</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountability-tbody"></tbody>
+        </table>
+        <div class="pagination-bar">
+          <span id="pagination-info" style="font-size:13px;color:#888;"></span>
+          <div class="pagination-btns" id="pagination-btns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Add/Edit Modal ===== -->
+  <div class="modal-overlay" id="acc-modal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <i class='bx bx-shield'></i>
+        <span id="modal-title-text">Add Accountability Record</span>
+      </div>
+
+      <form id="acc-form" onsubmit="return false;">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Borrower Name <span style="color:#e53935">*</span></label>
+            <input type="text" id="form-borrower" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Student / Employee ID</label>
+            <input type="text" id="form-student-id" placeholder="e.g. 2023-00123">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Item / Equipment <span style="color:#e53935">*</span></label>
+          <input type="text" id="form-item" placeholder="Item name">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="form-quantity" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label>Condition</label>
+            <select id="form-condition">
+              <option>Good</option>
+              <option>Fair</option>
+              <option>Poor</option>
+              <option>Damaged</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Issued</label>
+            <input type="date" id="form-issued">
+          </div>
+          <div class="form-group">
+            <label>Due Date <span style="color:#e53935">*</span></label>
+            <input type="date" id="form-due">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Return Date</label>
+            <input type="date" id="form-return-date">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="form-status">
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="overdue">Overdue</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="form-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="form-notes" placeholder="Optional notes…"></textarea>
+        </div>
+      </form>
+
+      <div class="modal-actions">
+        <button class="btn-cancel btn-cancel-modal">Cancel</button>
+        <button class="btn-submit" id="btn-save-record">Save Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Detail View Modal ===== -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <i class='bx bx-info-circle'></i>
+        Record Details
+        <button class="modal-close" style="margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;">
+          <i class='bx bx-x'></i>
+        </button>
+      </div>
+      <div id="detail-content"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel btn-cancel-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="shared.js"></script>
+  <script src="accountability.js"></script>
+</body>
+</html>

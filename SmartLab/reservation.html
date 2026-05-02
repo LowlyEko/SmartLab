@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS Laboratory – Reservation</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="reservation.css">
+  <link rel="stylesheet" href="reservation-modal.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar close">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="CAS Logo.png" alt="Logo" onerror="this.style.display='none'">
+        </span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+        </div>
+        <i class='bx bx-chevron-right toggle'></i>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="dashboard.html" data-page="dashboard"><i class='bx bxs-dashboard icon'></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservation.html" data-page="reservation"><i class='bx bx-calendar-check icon'></i><span class="text nav-text">Reservation</span></a></li>
+          <li class="nav-link"><a href="calendar.html" data-page="calendar"><i class='bx bx-time icon'></i><span class="text nav-text">Calendar</span></a></li>
+          <li class="nav-link"><a href="accountability.html" data-page="accountability"><i class='bx bx-shield icon'></i><span class="text nav-text">Accountability</span></a></li>
+          <li class="nav-link"><a href="inventory.html" data-page="inventory"><span class="material-symbols-outlined icon">inventory_2</span><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="transaction.html" data-page="transaction"><i class='bx bx-file icon'></i><span class="text nav-text">Transaction</span></a></li>
+        </ul>
+      </div>
+      <div class="botton-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class='bx bx-moon icon moon'></i>
+            <i class='bx bx-sun icon sun'></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+  <!-- ===== END SIDEBAR ===== -->
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+    <header>
+      <div class="header-icons">
+        <i class="fa-solid fa-bell"></i>
+        <i class="fa-solid fa-comment"></i>
+        <div class="profile">
+          <img src="profile.jpg" alt="">
+          <i class="fa-solid fa-angle-down"></i>
+          <ul class="dropdown-content">
+            <li><a href="#">Profile</a></li>
+            <li><a href="Login-Register.html">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== RESERVATION CONTENT ===== -->
+    <div class="page-content">
+      <h1>Reservation</h1>
+      <!-- ===== TOOLBAR ===== -->
+      <div class="toolbar">
+        <!-- Filter Dropdown -->
+        <div class="dropdown" id="filterDropdown">
+          <button class="dropdown-btn">
+            <span>All Status</span>
+            <i class="fa-solid fa-angle-down"></i>
+          </button>
+          <div class="dropdown-menu" id="filterMenu">
+            <div class="item active" data-value="all status">All Status</div>
+            <div class="item" data-value="active">Active</div>
+            <div class="item" data-value="invalid">Invalid</div>
+            <div class="item" data-value="conditional">Conditional</div>
+            <div class="item" data-value="returned">Returned</div>
+          </div>
+        </div>
+        <!-- Search -->
+        <div class="search-wrap">
+          <input type="search" placeholder="Search" class="search-box" id="searchBox">
+          <i class='bx bx-search'></i>
+        </div>
+        <!-- Sort Dropdown -->
+        <div class="dropdown" id="sortDropdown">
+          <button class="dropdown-btn">
+            <span>Sort by borrower name</span>
+            <i class="fa-solid fa-angle-down"></i>
+          </button>
+          <div class="dropdown-menu" id="sortMenu">
+            <div class="item active" data-value="name">Sort by borrower name</div>
+            <div class="item" data-value="date_request">Sort by date request</div>
+            <div class="item" data-value="due_return">Sort by due return</div>
+            <div class="item" data-value="status">Sort by status</div>
+          </div>
+        </div>
+        <!-- View Dropdown -->
+        <div class="dropdown" id="viewDropdown">
+          <button class="dropdown-btn">
+            <span>Table</span>
+            <i class="fa-solid fa-angle-down"></i>
+          </button>
+          <div class="dropdown-menu" id="viewMenu">
+            <div class="item active" data-value="table">Table</div>
+            <div class="item" data-value="card">Card</div>
+          </div>
+        </div>
+      </div>
+      <!-- ===== END OF TOOLBAR ===== -->
+      <!-- ===== SHOW TOGGLE ===== -->
+      <div class="show-toggle-wrap">
+        <span class="show-label">Show</span>
+        <div class="show-toggle-group">
+          <button class="show-toggle-btn active" data-show="all">Active Reservations</button>
+          <button class="show-toggle-btn" data-show="pending-approval">Pending Approval</button>
+        </div>
+      </div>
+      <!-- ===== END OF TOGGLE ===== -->
+      <!-- ===== ACTIVE RESERVATIONS SECTION ===== -->
+      <div class="reservation-table-card" id="active-section">
+        <div class="table-header">
+          <div class="ar-title-row">
+            <div class="ar-title-left">
+              <h3>Active Reservations</h3>
+              <span class="record-count" id="active-count"></span>
+            </div>
+            <div class="view-toggle">
+              <button class="view-toggle-btn active" data-view="table" title="Table view">
+                <i class="fa-solid fa-table-list"></i>
+              </button>
+              <button class="view-toggle-btn" data-view="card" title="Card view">
+                <i class="fa-solid fa-grip"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE VIEW -->
+        <div class="res-table-view" id="active-table-view">
+          <div class="table-wrapper">
+            <table class="reservation-table active-table">
+              <thead>
+                <tr>
+                  <th>STUDENTS</th>
+                  <th>ITEMS REQUESTED</th>
+                  <th>DATE REQUESTED</th>
+                  <th>DUE RETURN</th>
+                  <th>STATUS</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="active-tbody">
+                <tr data-name="Maria Santos" data-date="Apr 22, 2026" data-due="Apr 30, 2026" data-status="active">
+                  <td><div class="user"><div class="avatar green">MS</div><div><div class="name">Maria Santos</div><div class="sub">BS Chemistry • RES-001</div></div></div></td>
+                  <td><span class="tag">Bunsen Burner</span><span class="tag">Beakers (x4)</span></td>
+                  <td>Apr 22, 2026</td>
+                  <td>Apr 30, 2026</td>
+                  <td><span class="status active">Active</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <!-- <tr data-name="Jay Lumanta" data-date="May 10, 2026" data-due="May 13, 2026" data-status="active">
+                  <td><div class="user"><div class="avatar green">JL</div><div><div class="name">Jay Lumanta</div><div class="sub">BS Chemistry • RES-009</div></div></div></td>
+                  <td><span class="tag">Bunsen Burner</span><span class="tag">Beakers (x4)</span></td>
+                  <td>May 10, 2026</td>
+                  <td>May 13, 2026</td>
+                  <td><span class="status active">Active</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr> -->
+                <tr data-name="Carlos Reyes" data-date="Apr 25, 2026" data-due="Apr 28, 2026" data-status="invalid">
+                  <td><div class="user"><div class="avatar blue">CR</div><div><div class="name">Carlos Reyes</div><div class="sub">BS Biology • RES-002</div></div></div></td>
+                  <td><span class="tag">Microscope</span><span class="tag">Slides (x20)</span></td>
+                  <td>Apr 25, 2026</td>
+                  <td class="danger">Apr 28, 2026</td>
+                  <td><span class="status invalid">Invalid</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Ana Lim" data-date="Apr 24, 2026" data-due="May 2, 2026" data-status="active">
+                  <td><div class="user"><div class="avatar purple">AL</div><div><div class="name">Ana Lim</div><div class="sub">BS Physics • RES-003</div></div></div></td>
+                  <td><span class="tag">Oscilloscope</span></td>
+                  <td>Apr 24, 2026</td>
+                  <td>May 2, 2026</td>
+                  <td><span class="status active">Active</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Jose Dela Cruz" data-date="Apr 20, 2026" data-due="Apr 27, 2026" data-status="conditional">
+                  <td><div class="user"><div class="avatar teal">JD</div><div><div class="name">Jose Dela Cruz</div><div class="sub">BS Chemistry • RES-004</div></div></div></td>
+                  <td><span class="tag">Centrifuge</span><span class="tag">Test Tubes (x10)</span></td>
+                  <td>Apr 20, 2026</td>
+                  <td>Apr 27, 2026</td>
+                  <td><span class="status conditional">Conditional</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Rina Flores" data-date="Apr 18, 2026" data-due="Apr 24, 2026" data-status="returned">
+                  <td><div class="user"><div class="avatar blue">RF</div><div><div class="name">Rina Flores</div><div class="sub">MS Biology • RES-005</div></div></div></td>
+                  <td><span class="tag">Pipettes (x5)</span><span class="tag">Flask (x2)</span></td>
+                  <td>Apr 18, 2026</td>
+                  <td>Apr 24, 2026</td>
+                  <td><span class="status returned">Returned</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Ben Aquino" data-date="Apr 26, 2026" data-due="May 5, 2026" data-status="active">
+                  <td><div class="user"><div class="avatar green">BA</div><div><div class="name">Ben Aquino</div><div class="sub">BS Chemistry • RES-006</div></div></div></td>
+                  <td><span class="tag">Electric Balance</span></td>
+                  <td>Apr 26, 2026</td>
+                  <td>May 5, 2026</td>
+                  <td><span class="status active">Active</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Grace Tan" data-date="Apr 23, 2026" data-due="Apr 29, 2026" data-status="conditional">
+                  <td><div class="user"><div class="avatar purple">GT</div><div><div class="name">Grace Tan</div><div class="sub">BS Biology • RES-007</div></div></div></td>
+                  <td><span class="tag">Microscope</span><span class="tag">Cover Slips (x10)</span></td>
+                  <td>Apr 23, 2026</td>
+                  <td>Apr 29, 2026</td>
+                  <td><span class="status conditional">Conditional</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+                <tr data-name="Mark Villanueva" data-date="Apr 21, 2026" data-due="Apr 25, 2026" data-status="invalid">
+                  <td><div class="user"><div class="avatar teal">MV</div><div><div class="name">Mark Villanueva</div><div class="sub">BS Physics • RES-008</div></div></div></td>
+                  <td><span class="tag">Digital Multimeter</span></td>
+                  <td>Apr 21, 2026</td>
+                  <td class="danger">Apr 25, 2026</td>
+                  <td><span class="status invalid">Invalid</span></td>
+                  <td><i class="fa-solid fa-ellipsis action-menu-btn"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- END OF TABLE VIEW -->
+        <div class="pagination-wrap" id="active-pagination"></div>
+        
+        <!-- CARD VIEW (built by JS) -->
+        <div class="res-card-view" id="active-card-view" style="display:none;"></div>
+      </div>
+      <!-- ===== END OF ACTIVE RESERVATIONS SECTION ===== -->
+
+      <!-- ===== PENDING APPROVAL SECTION ===== -->
+      <div class="reservation-table-card" id="pending-section" style="display:none;">
+        <div class="table-header">
+          <div class="ar-title-row">
+            <div class="ar-title-left">
+              <h3>Pending Approvals</h3>
+              <span class="record-count" id="pending-count"></span>
+            </div>
+            <div class="view-toggle">
+              <button class="view-toggle-btn active" data-view="table" title="Table view">
+                <i class="fa-solid fa-table-list"></i>
+              </button>
+              <button class="view-toggle-btn" data-view="card" title="Card view">
+                <i class="fa-solid fa-grip"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE VIEW -->
+        <div class="res-table-view" id="pending-table-view">
+          <div class="table-wrapper">
+            <table class="reservation-table pending-table">
+              <thead>
+                <tr>
+                  <th>REQUEST ID</th>
+                  <th>STUDENTS</th>
+                  <th>EQUIPMENT / ITEMS</th>
+                  <th>DATE &amp; TIME</th>
+                  <th>REQUESTED UNTIL</th>
+                  <th style="text-align:center;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="pending-tbody">
+                <tr data-name="Lea Garcia" data-date="Apr 30, 2026" data-due="May 7, 2026">
+                  <td><span class="id">REQ-001</span></td>
+                  <td><div class="user"><div class="avatar green">LG</div><div><div class="name">Lea Garcia</div><div class="sub">BS Chemistry</div></div></div></td>
+                  <td><span class="tag">Erlenmeyer Flask (x3)</span><span class="tag">Stirring Rod</span></td>
+                  <td>Apr 30, 2026 · 8:00 AM</td>
+                  <td>May 7, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-name="Gryka Pacheco" data-date="Apr 15, 2026" data-due="Apr 18, 2026">
+                  <td><span class="id">REQ-006</span></td>
+                  <td><div class="user"><div class="avatar green">GP</div><div><div class="name">Gryka Pacheco</div><div class="sub">BS Chemistry</div></div></div></td>
+                  <td><span class="tag">Erlenmeyer Flask (x3)</span><span class="tag">Stirring Rod</span></td>
+                  <td>Apr 15, 2026 · 8:00 AM</td>
+                  <td>Apr 18, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-name="Rico Mendoza" data-date="Apr 30, 2026" data-due="May 5, 2026">
+                  <td><span class="id">REQ-002</span></td>
+                  <td><div class="user"><div class="avatar blue">RM</div><div><div class="name">Rico Mendoza</div><div class="sub">BS Biology</div></div></div></td>
+                  <td><span class="tag">Dissection Kit</span><span class="tag">Tray (x2)</span></td>
+                  <td>Apr 30, 2026 · 9:30 AM</td>
+                  <td>May 5, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-name="Sofia Cruz" data-date="Apr 29, 2026" data-due="May 10, 2026">
+                  <td><span class="id">REQ-003</span></td>
+                  <td><div class="user"><div class="avatar purple">SC</div><div><div class="name">Sofia Cruz</div><div class="sub">MS Chemistry</div></div></div></td>
+                  <td><span class="tag">Spectrophotometer</span></td>
+                  <td>Apr 29, 2026 · 1:00 PM</td>
+                  <td>May 10, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-name="Juan Bautista" data-date="Apr 28, 2026" data-due="May 6, 2026">
+                  <td><span class="id">REQ-004</span></td>
+                  <td><div class="user"><div class="avatar teal">JB</div><div><div class="name">Juan Bautista</div><div class="sub">BS Physics</div></div></div></td>
+                  <td><span class="tag">Power Supply</span><span class="tag">Resistors (x10)</span></td>
+                  <td>Apr 28, 2026 · 10:00 AM</td>
+                  <td>May 6, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-name="Nina Torres" data-date="Apr 27, 2026" data-due="May 4, 2026">
+                  <td><span class="id">REQ-005</span></td>
+                  <td><div class="user"><div class="avatar blue">NT</div><div><div class="name">Nina Torres</div><div class="sub">BS Biology</div></div></div></td>
+                  <td><span class="tag">Centrifuge Tubes (x20)</span><span class="tag">Micropipette</span></td>
+                  <td>Apr 27, 2026 · 2:30 PM</td>
+                  <td>May 4, 2026</td>
+                  <td style="text-align:center;">
+                    <div class="action-btns">
+                      <button class="pending-btn accept">Accept</button>
+                      <button class="pending-btn reject">Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- END OF TABLE VIEW -->
+        <div class="pagination-wrap" id="pending-pagination"></div>
+        <!-- CARD VIEW (built by JS) -->
+        <div class="res-card-view" id="pending-card-view" style="display:none;"></div>
+      </div>
+      <!-- ===== END OF PENDING APPROVAL SECTION ===== -->
+
+    </div>
+  </div>
+  <!-- ===== END MAIN CONTENT ===== -->
+
+  <script src="shared.js"></script>
+  <script src="reservation.js"></script>
+</body>
+</html>
