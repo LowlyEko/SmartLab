@@ -1,13 +1,4 @@
 -- ============================================================
---  SmartLab Database Schema v4
---  Changes from v3:
---    - Removed colleges table; college is now a free-text
---      column on users
---    - Added username to users
---    - Confirmed: middle_name, email, password_hash all present
--- ============================================================
-
--- ============================================================
 --  SECTION 1: USER MANAGEMENT
 -- ============================================================
 
