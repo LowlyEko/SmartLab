@@ -168,6 +168,10 @@ body.dark .filter-select { background: #2c2e2c; border-color: #3a3a3a; color: #d
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   overflow: hidden;
 }
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 table {
   width: 100%;
