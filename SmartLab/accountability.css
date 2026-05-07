@@ -180,7 +180,8 @@ body.dark .summary-info .summary-label { color: #aaa; }
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 2px 14px rgba(0,0,0,0.08);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 body.dark .accountability-table-wrapper {
@@ -213,6 +214,7 @@ body.dark .table-header-bar h2 { color: #eee; }
 
 table.accountability-table {
   width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
 }
 
@@ -289,6 +291,17 @@ body.dark .borrower-name { color: #eee; }
   font-size: 11.5px;
   color: #999;
 }
+
+/* ── Names / Broken By cell (no avatar) ── */
+.person-name-plain {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+body.dark .person-name-plain { color: #eee; }
+
+.person-primary { display: block; }
 
 /* Status badges */
 .status-badge {
@@ -679,7 +692,7 @@ body.dark .page-btn {
 
 body.dark .page-btn.active { background: #205e38; border-color: #205e38; color: #fff; }
 
-/* Toast notification */
+/* ===== Toast notification ===== */
 .toast {
   position: fixed;
   bottom: 28px;
@@ -706,3 +719,109 @@ body.dark .page-btn.active { background: #205e38; border-color: #205e38; color: 
 }
 
 .toast.error { background: #c62828; box-shadow: 0 6px 20px rgba(198,40,40,0.3); }
+
+/* ===== Multi-person form field ===== */
+.person-field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+}
+
+body.dark .person-field-label { color: #aaa; }
+
+#persons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.person-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.person-num {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #aaa;
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.person-input {
+  flex: 1;
+  padding: 8px 11px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  background: #fafafa;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.person-input:focus {
+  border-color: #205e38;
+  box-shadow: 0 0 0 3px rgba(32,94,56,0.09);
+  background: #fff;
+}
+
+body.dark .person-input {
+  background: #1e1f1d;
+  border-color: #3a3b39;
+  color: #ddd;
+}
+
+body.dark .person-input:focus {
+  border-color: #D4B84A;
+  box-shadow: 0 0 0 3px rgba(212,184,74,0.12);
+  background: #252624;
+}
+
+.person-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: #fdecea;
+  color: #c62828;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.person-remove-btn:hover { background: #f5c6c6; transform: scale(1.1); }
+
+body.dark .person-remove-btn { background: #2e1111; color: #ef9a9a; }
+
+.btn-add-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #205e38;
+  background: #e8f5e9;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 2px;
+}
+
+.btn-add-person:hover { background: #c8e6c9; }
+
+body.dark .btn-add-person { background: #1a3a26; color: #6fcf97; }
+body.dark .btn-add-person:hover { background: #1e4a2e; }
