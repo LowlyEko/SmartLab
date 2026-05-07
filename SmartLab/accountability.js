@@ -4,20 +4,9 @@
   /* ============================
      DATA STORE
   ============================ */
-  const COLORS = ["#205e38","#D4B84A","#1976d2","#7b1fa2","#e53935","#00897b","#f57c00"];
+  let records = [];
 
-  let records = [
-    { id: "ACC-001", borrower: "Maria Santos",    studentId: "2021-00142", item: "Chemistry Flask Set",      quantity: 3,  dateIssued: "2025-04-10", dueDate: "2025-04-24", returnDate: "",           status: "overdue",  priority: "high",   condition: "Good",  notes: "Student borrowed for lab experiment." },
-    { id: "ACC-002", borrower: "Juan dela Cruz",  studentId: "2022-00311", item: "Digital Microscope",       quantity: 1,  dateIssued: "2025-04-20", dueDate: "2025-05-04", returnDate: "",           status: "active",   priority: "medium", condition: "Good",  notes: "Handle with care." },
-    { id: "ACC-003", borrower: "Ana Reyes",        studentId: "2020-00089", item: "Bunsen Burner",            quantity: 2,  dateIssued: "2025-03-15", dueDate: "2025-03-29", returnDate: "2025-03-28", status: "resolved", priority: "low",    condition: "Good",  notes: "" },
-    { id: "ACC-004", borrower: "Carlos Mendoza",  studentId: "2023-00451", item: "Vernier Caliper",          quantity: 1,  dateIssued: "2025-04-22", dueDate: "2025-05-06", returnDate: "",           status: "pending",  priority: "low",    condition: "Fair",  notes: "Waiting for approval." },
-    { id: "ACC-005", borrower: "Liza Flores",     studentId: "2021-00209", item: "Centrifuge Machine",       quantity: 1,  dateIssued: "2025-04-01", dueDate: "2025-04-15", returnDate: "",           status: "overdue",  priority: "high",   condition: "Good",  notes: "Faculty use." },
-    { id: "ACC-006", borrower: "Rodel Castillo",  studentId: "2022-00178", item: "Oscilloscope",             quantity: 1,  dateIssued: "2025-04-25", dueDate: "2025-05-09", returnDate: "",           status: "active",   priority: "medium", condition: "Good",  notes: "" },
-    { id: "ACC-007", borrower: "Nina Cruz",        studentId: "2020-00334", item: "Beaker Set (500ml x5)",   quantity: 5,  dateIssued: "2025-03-20", dueDate: "2025-04-03", returnDate: "2025-04-02", status: "resolved", priority: "low",    condition: "Good",  notes: "Returned early." },
-    { id: "ACC-008", borrower: "Paolo Reyes",     studentId: "2023-00560", item: "Power Supply Unit",        quantity: 2,  dateIssued: "2025-04-28", dueDate: "2025-05-12", returnDate: "",           status: "active",   priority: "high",   condition: "Good",  notes: "Thesis use." },
-  ];
-
-  let nextIdNum = 9;
+  let nextIdNum = 1;
   let currentPage = 1;
   const perPage = 6;
   let filterStatus = "all";
@@ -27,36 +16,42 @@
   /* ============================
      HELPERS
   ============================ */
-  function avatarColor(name) {
-    let h = 0;
-    for (let c of name) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
-    return COLORS[Math.abs(h) % COLORS.length];
-  }
-
-  function initials(name) {
-    return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  }
-
   function formatDate(str) {
     if (!str) return "—";
     const d = new Date(str + "T00:00:00");
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   }
 
-  function isOverdue(r) {
-    if (r.status === "resolved") return false;
-    return new Date(r.dueDate) < new Date();
+  function formatTime(str) {
+    if (!str) return "—";
+    const [h, m] = str.split(":");
+    const hour = parseInt(h);
+    const suffix = hour >= 12 ? "PM" : "AM";
+    return ((hour % 12) || 12) + ":" + m + " " + suffix;
+  }
+
+  function formatTimeRange(start, end) {
+    if (!start && !end) return "—";
+    if (!end) return formatTime(start);
+    return formatTime(start) + " - " + formatTime(end);
+  }
+
+  function cloneTemplate(id) {
+    return document.getElementById(id).content.cloneNode(true);
   }
 
   function getFilteredRecords() {
     return records.filter(r => {
-      const matchStatus = filterStatus === "all" || r.status === filterStatus;
+      const matchStatus = filterStatus === "all" || r.remarks === filterStatus;
       const q = searchQuery.toLowerCase();
+      const namesStr = (r.persons || []).join(" ").toLowerCase();
       const matchSearch = !q
-        || r.borrower.toLowerCase().includes(q)
+        || namesStr.includes(q)
         || r.id.toLowerCase().includes(q)
-        || r.item.toLowerCase().includes(q)
-        || r.studentId.toLowerCase().includes(q);
+        || r.materialsBroken.toLowerCase().includes(q)
+        || (r.teacher || "").toLowerCase().includes(q)
+        || (r.subject || "").toLowerCase().includes(q)
+        || (r.programSection || "").toLowerCase().includes(q);
       return matchStatus && matchSearch;
     });
   }
@@ -66,9 +61,29 @@
   ============================ */
   function renderSummary() {
     document.getElementById("cnt-total").textContent    = records.length;
-    document.getElementById("cnt-active").textContent   = records.filter(r => r.status === "active").length;
-    document.getElementById("cnt-resolved").textContent = records.filter(r => r.status === "resolved").length;
-    document.getElementById("cnt-overdue").textContent  = records.filter(r => r.status === "overdue").length;
+    document.getElementById("cnt-active").textContent   = records.filter(r => r.remarks === "active").length;
+    document.getElementById("cnt-resolved").textContent = records.filter(r => r.remarks === "resolved").length;
+    document.getElementById("cnt-overdue").textContent  = records.filter(r => r.remarks === "overdue").length;
+  }
+
+  /* ============================
+     RENDER PERSONS CELL
+  ============================ */
+  function renderPersonsCell(persons) {
+    if (!persons || persons.length === 0) {
+      const span = document.createElement("span");
+      span.style.color = "#aaa";
+      span.textContent = "—";
+      return span;
+    }
+
+    const frag = document.createDocumentFragment();
+    persons.forEach(p => {
+      const node = cloneTemplate("tmpl-person-name");
+      node.querySelector(".person-name-plain").textContent = p;
+      frag.appendChild(node);
+    });
+    return frag;
   }
 
   /* ============================
@@ -84,42 +99,52 @@
     tbody.innerHTML = "";
 
     if (slice.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8">
-        <div class="empty-state">
-          <i class='bx bx-shield-x'></i>
-          <p>No accountability records found.</p>
-        </div>
-      </td></tr>`;
+      tbody.appendChild(cloneTemplate("tmpl-empty-state"));
     } else {
       slice.forEach(r => {
-        const color = avatarColor(r.borrower);
-        const statusLabel = r.status.charAt(0).toUpperCase() + r.status.slice(1);
-        tbody.innerHTML += `
-          <tr data-id="${r.id}">
-            <td>
-              <div class="borrower-cell">
-                <div class="borrower-avatar" style="background:${color}">${initials(r.borrower)}</div>
-                <div>
-                  <div class="borrower-name">${r.borrower}</div>
-                  <div class="borrower-id">${r.studentId}</div>
-                </div>
-              </div>
-            </td>
-            <td><span style="font-weight:600;color:#205e38;font-size:12px;">${r.id}</span></td>
-            <td>${r.item}</td>
-            <td style="text-align:center;">${r.quantity}</td>
-            <td>${formatDate(r.dueDate)}</td>
-            <td><span class="status-badge ${r.status}">${statusLabel}</span></td>
-            <td><span class="priority-badge ${r.priority}">${r.priority.charAt(0).toUpperCase() + r.priority.slice(1)}</span></td>
-            <td>
-              <div class="action-btns">
-                <button class="action-btn view" title="View Details" onclick="window.viewRecord('${r.id}')"><i class='bx bx-show'></i></button>
-                <button class="action-btn edit" title="Edit" onclick="window.openEditModal('${r.id}')"><i class='bx bx-edit'></i></button>
-                ${r.status !== "resolved" ? `<button class="action-btn resolve" title="Mark Resolved" onclick="window.resolveRecord('${r.id}')"><i class='bx bx-check-circle'></i></button>` : ""}
-                <button class="action-btn delete" title="Delete" onclick="window.deleteRecord('${r.id}')"><i class='bx bx-trash'></i></button>
-              </div>
-            </td>
-          </tr>`;
+        const remarksLabel = r.remarks.charAt(0).toUpperCase() + r.remarks.slice(1);
+        const rowFrag = cloneTemplate("tmpl-table-row");
+        const row = rowFrag.querySelector("tr");
+
+        row.dataset.id = r.id;
+
+        row.querySelector(".col-date-borrowed").textContent    = formatDate(r.dateBorrowed);
+        row.querySelector(".col-materials-broken").textContent = r.materialsBroken;
+        row.querySelector(".col-teacher").textContent          = r.teacher || "—";
+        row.querySelector(".col-subject").textContent          = r.subject || "—";
+        row.querySelector(".col-time").textContent             = formatTimeRange(r.time, r.timeEnd);
+        row.querySelector(".col-program-section").textContent  = r.programSection || "—";
+        row.querySelector(".col-deadline").textContent         = formatDate(r.deadline);
+        row.querySelector(".col-date-replaced").textContent    = formatDate(r.dateReplaced);
+        row.querySelector(".col-received-by").textContent      = r.receivedBy || "—";
+
+        // Remarks badge
+        const badge = document.createElement("span");
+        badge.className = "status-badge " + r.remarks;
+        badge.textContent = remarksLabel;
+        row.querySelector(".col-remarks").appendChild(badge);
+
+        // Persons cell
+        const personsCell = row.querySelector(".col-persons");
+        personsCell.appendChild(renderPersonsCell(r.persons));
+
+        // Action buttons
+        const viewBtn    = row.querySelector(".action-btn.view");
+        const editBtn    = row.querySelector(".action-btn.edit");
+        const resolveBtn = row.querySelector(".action-btn.resolve");
+        const deleteBtn  = row.querySelector(".action-btn.delete");
+
+        viewBtn.addEventListener("click",   () => window.viewRecord(r.id));
+        editBtn.addEventListener("click",   () => window.openEditModal(r.id));
+        deleteBtn.addEventListener("click", () => window.deleteRecord(r.id));
+
+        if (r.remarks === "resolved") {
+          resolveBtn.remove();
+        } else {
+          resolveBtn.addEventListener("click", () => window.resolveRecord(r.id));
+        }
+
+        tbody.appendChild(rowFrag);
       });
     }
 
@@ -141,21 +166,78 @@
     prev.innerHTML = "<i class='bx bx-chevron-left'></i>";
     prev.disabled = currentPage === 1;
     prev.style.opacity = currentPage === 1 ? "0.4" : "1";
-    prev.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
+    prev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; renderTable(); } });
     container.appendChild(prev);
 
-    const current = document.createElement("button");
-    current.className = "page-btn active";
-    current.textContent = currentPage;
-    container.appendChild(current);
+    const cur = document.createElement("button");
+    cur.className = "page-btn active";
+    cur.textContent = currentPage;
+    container.appendChild(cur);
 
     const next = document.createElement("button");
     next.className = "page-btn";
     next.innerHTML = "<i class='bx bx-chevron-right'></i>";
     next.disabled = currentPage === totalPages;
     next.style.opacity = currentPage === totalPages ? "0.4" : "1";
-    next.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
+    next.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; renderTable(); } });
     container.appendChild(next);
+  }
+
+  /* ============================
+     MULTI-PERSON FIELD BUILDER
+  ============================ */
+  function getPersonsContainer() {
+    return document.getElementById("persons-container");
+  }
+
+  function buildPersonsField(persons) {
+    const container = getPersonsContainer();
+    container.innerHTML = "";
+    const list = (persons && persons.length > 0) ? persons : [""];
+    list.forEach(name => _appendPersonRow(name));
+    _syncPersonUI();
+  }
+
+  function _appendPersonRow(value = "") {
+    const container = getPersonsContainer();
+    const frag = cloneTemplate("tmpl-person-row");
+    const row = frag.querySelector(".person-input-row");
+
+    row.querySelector(".person-num").textContent = container.children.length + 1;
+    row.querySelector(".person-input").value = value;
+    row.querySelector(".person-remove-btn").addEventListener("click", function () {
+      window._removePerson(this);
+    });
+
+    container.appendChild(frag);
+  }
+
+  window._removePerson = function(btn) {
+    const container = getPersonsContainer();
+    if (container.children.length <= 1) return;
+    btn.closest(".person-input-row").remove();
+    _syncPersonUI();
+  };
+
+  function _syncPersonUI() {
+    const rows = getPersonsContainer().querySelectorAll(".person-input-row");
+    rows.forEach((row, i) => {
+      row.querySelector(".person-num").textContent = i + 1;
+      row.querySelector(".person-remove-btn").style.visibility = rows.length > 1 ? "visible" : "hidden";
+    });
+  }
+
+  window.addPersonRow = function() {
+    _appendPersonRow("");
+    _syncPersonUI();
+    const inputs = getPersonsContainer().querySelectorAll(".person-input");
+    inputs[inputs.length - 1].focus();
+  };
+
+  function getPersonsFromForm() {
+    return Array.from(getPersonsContainer().querySelectorAll(".person-input"))
+      .map(i => i.value.trim())
+      .filter(v => v.length > 0);
   }
 
   /* ============================
@@ -165,8 +247,8 @@
     editingId = null;
     document.getElementById("modal-title-text").textContent = "Add Accountability Record";
     document.getElementById("acc-form").reset();
-    document.getElementById("form-return-date").value = "";
-    document.getElementById("form-status").value = "active";
+    document.getElementById("form-remarks").value = "active";
+    buildPersonsField([""]);
     openModal("acc-modal");
   };
 
@@ -174,46 +256,48 @@
     const r = records.find(x => x.id === id);
     if (!r) return;
     editingId = id;
-    document.getElementById("modal-title-text").textContent = "Edit Record";
-    document.getElementById("form-borrower").value   = r.borrower;
-    document.getElementById("form-student-id").value = r.studentId;
-    document.getElementById("form-item").value       = r.item;
-    document.getElementById("form-quantity").value   = r.quantity;
-    document.getElementById("form-issued").value     = r.dateIssued;
-    document.getElementById("form-due").value        = r.dueDate;
-    document.getElementById("form-return-date").value = r.returnDate || "";
-    document.getElementById("form-status").value     = r.status;
-    document.getElementById("form-priority").value   = r.priority;
-    document.getElementById("form-condition").value  = r.condition;
-    document.getElementById("form-notes").value      = r.notes;
+    document.getElementById("modal-title-text").textContent  = "Edit Record";
+    document.getElementById("form-date-borrowed").value      = r.dateBorrowed;
+    document.getElementById("form-materials-broken").value   = r.materialsBroken;
+    document.getElementById("form-teacher").value            = r.teacher;
+    document.getElementById("form-subject").value            = r.subject;
+    document.getElementById("form-time-start").value         = r.time    || "";
+    document.getElementById("form-time-end").value           = r.timeEnd || "";
+    document.getElementById("form-program-section").value    = r.programSection;
+    document.getElementById("form-deadline").value           = r.deadline;
+    document.getElementById("form-remarks").value            = r.remarks;
+    document.getElementById("form-date-replaced").value      = r.dateReplaced || "";
+    document.getElementById("form-received-by").value        = r.receivedBy || "";
+    buildPersonsField(r.persons && r.persons.length > 0 ? r.persons : [""]);
     openModal("acc-modal");
   };
 
   function saveRecord() {
-    const borrower   = document.getElementById("form-borrower").value.trim();
-    const studentId  = document.getElementById("form-student-id").value.trim();
-    const item       = document.getElementById("form-item").value.trim();
-    const quantity   = parseInt(document.getElementById("form-quantity").value) || 1;
-    const dateIssued = document.getElementById("form-issued").value;
-    const dueDate    = document.getElementById("form-due").value;
-    const returnDate = document.getElementById("form-return-date").value;
-    const status     = document.getElementById("form-status").value;
-    const priority   = document.getElementById("form-priority").value;
-    const condition  = document.getElementById("form-condition").value;
-    const notes      = document.getElementById("form-notes").value.trim();
+    const dateBorrowed    = document.getElementById("form-date-borrowed").value;
+    const persons         = getPersonsFromForm();
+    const materialsBroken = document.getElementById("form-materials-broken").value.trim();
+    const teacher         = document.getElementById("form-teacher").value.trim();
+    const subject         = document.getElementById("form-subject").value.trim();
+    const time            = document.getElementById("form-time-start").value;
+    const timeEnd         = document.getElementById("form-time-end").value;
+    const programSection  = document.getElementById("form-program-section").value.trim();
+    const deadline        = document.getElementById("form-deadline").value;
+    const remarks         = document.getElementById("form-remarks").value;
+    const dateReplaced    = document.getElementById("form-date-replaced").value;
+    const receivedBy      = document.getElementById("form-received-by").value.trim();
 
-    if (!borrower || !item || !dueDate) {
+    if (persons.length === 0 || !materialsBroken || !dateBorrowed) {
       showToast("Please fill in required fields.", true);
       return;
     }
 
     if (editingId) {
       const idx = records.findIndex(x => x.id === editingId);
-      records[idx] = { ...records[idx], borrower, studentId, item, quantity, dateIssued, dueDate, returnDate, status, priority, condition, notes };
+      records[idx] = { ...records[idx], dateBorrowed, persons, materialsBroken, teacher, subject, time, timeEnd, programSection, deadline, remarks, dateReplaced, receivedBy };
       showToast("Record updated successfully.");
     } else {
       const id = "ACC-" + String(nextIdNum++).padStart(3, "0");
-      records.push({ id, borrower, studentId, item, quantity, dateIssued, dueDate, returnDate, status, priority, condition, notes });
+      records.push({ id, dateBorrowed, persons, materialsBroken, teacher, subject, time, timeEnd, programSection, deadline, remarks, dateReplaced, receivedBy });
       showToast("Record added successfully.");
     }
 
@@ -229,43 +313,65 @@
     const r = records.find(x => x.id === id);
     if (!r) return;
 
-    const color = avatarColor(r.borrower);
-    const statusLabel = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+    const remarksLabel = r.remarks.charAt(0).toUpperCase() + r.remarks.slice(1);
+    const detailContent = document.getElementById("detail-content");
+    detailContent.innerHTML = "";
 
-    document.getElementById("detail-content").innerHTML = `
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
-        <div style="width:52px;height:52px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;">${initials(r.borrower)}</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#1a1a1a;">${r.borrower}</div>
-          <div style="font-size:12.5px;color:#999;">${r.studentId} &nbsp;•&nbsp; <span class="status-badge ${r.status}" style="vertical-align:middle;">${statusLabel}</span></div>
-        </div>
-      </div>
+    // --- Persons block ---
+    const personsFrag = cloneTemplate("tmpl-detail-persons-block");
+    const personsBlock = personsFrag.querySelector(".detail-persons-block");
 
-      <div class="detail-section">
-        <div class="detail-section-title">Item Details</div>
-        <div class="detail-grid">
-          <div class="detail-item"><div class="detail-label">Record ID</div><div class="detail-value">${r.id}</div></div>
-          <div class="detail-item"><div class="detail-label">Item</div><div class="detail-value">${r.item}</div></div>
-          <div class="detail-item"><div class="detail-label">Quantity</div><div class="detail-value">${r.quantity}</div></div>
-          <div class="detail-item"><div class="detail-label">Condition</div><div class="detail-value">${r.condition}</div></div>
-          <div class="detail-item"><div class="detail-label">Priority</div><div class="detail-value"><span class="priority-badge ${r.priority}">${r.priority.charAt(0).toUpperCase()+r.priority.slice(1)}</span></div></div>
-        </div>
-      </div>
+    personsBlock.querySelector(".detail-persons-label").textContent =
+      r.persons && r.persons.length > 1
+        ? "Persons Responsible (" + r.persons.length + ")"
+        : "Person Responsible";
 
-      <div class="detail-section">
-        <div class="detail-section-title">Timeline</div>
-        <ul class="timeline">
-          <li><strong>Issued</strong><span class="time-label">${formatDate(r.dateIssued)}</span></li>
-          <li><strong>Due Date</strong><span class="time-label">${formatDate(r.dueDate)}</span></li>
-          ${r.returnDate ? `<li><strong>Returned</strong><span class="time-label">${formatDate(r.returnDate)}</span></li>` : ""}
-        </ul>
-      </div>
+    const remarksBadge = personsBlock.querySelector(".detail-remarks-badge");
+    remarksBadge.classList.add(r.remarks);
+    remarksBadge.textContent = remarksLabel;
 
-      ${r.notes ? `<div class="detail-section">
-        <div class="detail-section-title">Notes</div>
-        <p style="font-size:13.5px;color:#555;line-height:1.6;">${r.notes}</p>
-      </div>` : ""}
-    `;
+    const personsList = personsBlock.querySelector(".detail-persons-list");
+    (r.persons || []).forEach((p, i) => {
+      const entryFrag = cloneTemplate("tmpl-detail-person-entry");
+      entryFrag.querySelector(".person-index").textContent = (i + 1) + ".";
+      entryFrag.querySelector(".person-name").textContent = p;
+      personsList.appendChild(entryFrag);
+    });
+
+    personsBlock.querySelector(".detail-record-id").textContent = r.id;
+    detailContent.appendChild(personsFrag);
+
+    // --- Incident details ---
+    const incidentFrag = cloneTemplate("tmpl-detail-incident");
+    incidentFrag.querySelector(".col-date-borrowed").textContent   = formatDate(r.dateBorrowed);
+    incidentFrag.querySelector(".col-time").textContent            = formatTimeRange(r.time, r.timeEnd);
+    incidentFrag.querySelector(".col-materials-broken").textContent = r.materialsBroken;
+    incidentFrag.querySelector(".col-teacher").textContent         = r.teacher || "—";
+    incidentFrag.querySelector(".col-subject").textContent         = r.subject || "—";
+    incidentFrag.querySelector(".col-program-section").textContent = r.programSection || "—";
+    detailContent.appendChild(incidentFrag);
+
+    // --- Resolution ---
+    const resFrag = cloneTemplate("tmpl-detail-resolution");
+    resFrag.querySelector(".tl-deadline + .time-label, li.tl-deadline .time-label").textContent = formatDate(r.deadline);
+
+    const timeline = resFrag.querySelector(".timeline");
+
+    if (r.dateReplaced) {
+      const itemFrag = cloneTemplate("tmpl-timeline-item");
+      itemFrag.querySelector(".tl-label").textContent = "Date Replaced";
+      itemFrag.querySelector(".time-label").textContent = formatDate(r.dateReplaced);
+      timeline.appendChild(itemFrag);
+    }
+
+    if (r.receivedBy) {
+      const itemFrag = cloneTemplate("tmpl-timeline-item");
+      itemFrag.querySelector(".tl-label").textContent = "Received By";
+      itemFrag.querySelector(".time-label").textContent = r.receivedBy;
+      timeline.appendChild(itemFrag);
+    }
+
+    detailContent.appendChild(resFrag);
 
     openModal("detail-modal");
   };
@@ -276,8 +382,8 @@
   window.resolveRecord = function (id) {
     const r = records.find(x => x.id === id);
     if (!r) return;
-    r.status = "resolved";
-    r.returnDate = new Date().toISOString().split("T")[0];
+    r.remarks = "resolved";
+    r.dateReplaced = new Date().toISOString().split("T")[0];
     renderSummary();
     renderTable();
     showToast("Record marked as resolved.");
@@ -319,7 +425,11 @@
   ============================ */
   function showToast(msg, isError = false) {
     const t = document.getElementById("toast");
-    t.innerHTML = `<i class='bx ${isError ? "bx-error-circle" : "bx-check-circle"}'></i> ${msg}`;
+    const icon = document.createElement("i");
+    icon.className = "bx " + (isError ? "bx-error-circle" : "bx-check-circle");
+    t.innerHTML = "";
+    t.appendChild(icon);
+    t.appendChild(document.createTextNode(" " + msg));
     t.className = "toast" + (isError ? " error" : "");
     t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 3000);
