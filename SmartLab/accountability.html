@@ -105,10 +105,10 @@
         <div class="toolbar-left">
           <div class="search-box">
             <i class='bx bx-search'></i>
-            <input type="text" id="search-input" placeholder="Search borrower, item, ID…">
+            <input type="text" id="search-input" placeholder="Search name, material, teacher…">
           </div>
           <select class="filter-select" id="filter-status">
-            <option value="all">All Status</option>
+            <option value="all">All Remarks</option>
             <option value="active">Active</option>
             <option value="pending">Pending</option>
             <option value="overdue">Overdue</option>
@@ -131,13 +131,17 @@
         <table class="accountability-table">
           <thead>
             <tr>
-              <th>Borrower</th>
-              <th>Record ID</th>
-              <th>Item</th>
-              <th style="text-align:center;">Qty</th>
-              <th>Due Date</th>
-              <th>Status</th>
-              <th>Priority</th>
+              <th>Date Borrowed</th>
+              <th>Names/Broken By</th>
+              <th>Materials Broken</th>
+              <th>Teacher</th>
+              <th>Subject</th>
+              <th>Time</th>
+              <th>Program/Course/Section</th>
+              <th>Deadline</th>
+              <th>Remarks</th>
+              <th>Date Replaced</th>
+              <th>Received By</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -160,53 +164,59 @@
       </div>
 
       <form id="acc-form" onsubmit="return false;">
+
         <div class="form-row">
           <div class="form-group">
-            <label>Borrower Name <span style="color:#e53935">*</span></label>
-            <input type="text" id="form-borrower" placeholder="Full name">
+            <label>Date Borrowed <span style="color:#e53935">*</span></label>
+            <input type="date" id="form-date-borrowed">
           </div>
           <div class="form-group">
-            <label>Student / Employee ID</label>
-            <input type="text" id="form-student-id" placeholder="e.g. 2023-00123">
+            <label>Time</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="time" id="form-time-start" style="flex:1;">
+              <span style="font-size:13px;color:#888;font-weight:500;">to</span>
+              <input type="time" id="form-time-end" style="flex:1;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-person field -->
+        <div class="form-group">
+          <label class="person-field-label">
+            Names/Broken By <span style="color:#e53935">*</span>
+          </label>
+          <div id="persons-container"></div>
+          <button type="button" class="btn-add-person" onclick="window.addPersonRow()">
+            <i class='bx bx-plus'></i> Add another person
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Materials Broken <span style="color:#e53935">*</span></label>
+          <input type="text" id="form-materials-broken" placeholder="e.g. Chemistry Flask, Beaker Set">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teacher</label>
+            <input type="text" id="form-teacher" placeholder="Teacher's name">
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="form-subject" placeholder="e.g. Chemistry, Physics">
           </div>
         </div>
         <div class="form-group">
-          <label>Item / Equipment <span style="color:#e53935">*</span></label>
-          <input type="text" id="form-item" placeholder="Item name">
+          <label>Program/Course /Section</label>
+          <input type="text" id="form-program-section" placeholder="e.g. BSCS 2-A, BSED 3-B">
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Quantity</label>
-            <input type="number" id="form-quantity" min="1" value="1">
+            <label>Deadline</label>
+            <input type="date" id="form-deadline">
           </div>
           <div class="form-group">
-            <label>Condition</label>
-            <select id="form-condition">
-              <option>Good</option>
-              <option>Fair</option>
-              <option>Poor</option>
-              <option>Damaged</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Date Issued</label>
-            <input type="date" id="form-issued">
-          </div>
-          <div class="form-group">
-            <label>Due Date <span style="color:#e53935">*</span></label>
-            <input type="date" id="form-due">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Return Date</label>
-            <input type="date" id="form-return-date">
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="form-status">
+            <label>Remarks</label>
+            <select id="form-remarks">
               <option value="active">Active</option>
               <option value="pending">Pending</option>
               <option value="overdue">Overdue</option>
@@ -214,18 +224,17 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label>Priority</label>
-          <select id="form-priority">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Replaced</label>
+            <input type="date" id="form-date-replaced">
+          </div>
+          <div class="form-group">
+            <label>Received By</label>
+            <input type="text" id="form-received-by" placeholder="Name of receiver">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="form-notes" placeholder="Optional notes…"></textarea>
-        </div>
+
       </form>
 
       <div class="modal-actions">
@@ -251,6 +260,114 @@
       </div>
     </div>
   </div>
+
+  <!-- ===== HTML Templates (used by accountability.js) ===== -->
+
+  <!-- Template: empty state row -->
+  <template id="tmpl-empty-state">
+    <tr>
+      <td colspan="12">
+        <div class="empty-state">
+          <i class='bx bx-shield-x'></i>
+          <p>No accountability records found.</p>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Template: table row (data filled by JS) -->
+  <template id="tmpl-table-row">
+    <tr>
+      <td class="col-date-borrowed" style="white-space:nowrap;"></td>
+      <td class="col-persons persons-td"></td>
+      <td class="col-materials-broken"></td>
+      <td class="col-teacher" style="white-space:nowrap;"></td>
+      <td class="col-subject"></td>
+      <td class="col-time" style="white-space:nowrap;"></td>
+      <td class="col-program-section"></td>
+      <td class="col-deadline" style="white-space:nowrap;"></td>
+      <td class="col-remarks"></td>
+      <td class="col-date-replaced" style="white-space:nowrap;"></td>
+      <td class="col-received-by" style="white-space:nowrap;"></td>
+      <td class="col-actions">
+        <div class="action-btns">
+          <button class="action-btn view" title="View Details"><i class='bx bx-show'></i></button>
+          <button class="action-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
+          <button class="action-btn resolve" title="Mark Resolved"><i class='bx bx-check-circle'></i></button>
+          <button class="action-btn delete" title="Delete"><i class='bx bx-trash'></i></button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Template: person input row (used in the add/edit form) -->
+  <template id="tmpl-person-row">
+    <div class="person-input-row">
+      <span class="person-num"></span>
+      <input type="text" class="person-input" placeholder="Full name" autocomplete="off">
+      <button type="button" class="person-remove-btn" title="Remove person">
+        <i class='bx bx-minus'></i>
+      </button>
+    </div>
+  </template>
+
+  <!-- Template: person name cell (inside table) -->
+  <template id="tmpl-person-name">
+    <div class="person-name-plain" style="padding:2px 0;border-bottom:1px solid #e8e8e8;line-height:1.6;"></div>
+  </template>
+
+  <!-- Template: detail modal – persons header block -->
+  <template id="tmpl-detail-persons-block">
+    <div class="detail-persons-block" style="margin-bottom:20px;padding:14px 16px;background:#f6fdf9;border-radius:10px;border:1px solid #d0ead8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <i class='bx bx-group' style="font-size:17px;color:#205e38;"></i>
+          <span class="detail-persons-label" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#205e38;"></span>
+        </div>
+        <span class="detail-remarks-badge status-badge"></span>
+      </div>
+      <div class="detail-persons-list" style="padding-left:4px;"></div>
+      <div class="detail-record-id" style="font-size:11px;color:#bbb;margin-top:6px;"></div>
+    </div>
+  </template>
+
+  <!-- Template: single person entry inside detail modal -->
+  <template id="tmpl-detail-person-entry">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span class="person-index" style="font-size:11px;color:#aaa;min-width:18px;text-align:right;"></span>
+      <span class="person-name" style="font-size:13.5px;font-weight:600;color:#1a1a1a;"></span>
+    </div>
+  </template>
+
+  <!-- Template: detail modal – incident details section -->
+  <template id="tmpl-detail-incident">
+    <div class="detail-section">
+      <div class="detail-section-title">Incident Details</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Date Borrowed</div><div class="detail-value col-date-borrowed"></div></div>
+        <div class="detail-item"><div class="detail-label">Time</div><div class="detail-value col-time"></div></div>
+        <div class="detail-item"><div class="detail-label">Materials Broken</div><div class="detail-value col-materials-broken"></div></div>
+        <div class="detail-item"><div class="detail-label">Teacher</div><div class="detail-value col-teacher"></div></div>
+        <div class="detail-item"><div class="detail-label">Subject</div><div class="detail-value col-subject"></div></div>
+        <div class="detail-item"><div class="detail-label">Program / Course / Section</div><div class="detail-value col-program-section"></div></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Template: detail modal – resolution section -->
+  <template id="tmpl-detail-resolution">
+    <div class="detail-section">
+      <div class="detail-section-title">Resolution</div>
+      <ul class="timeline">
+        <li class="tl-deadline"><strong>Deadline</strong><span class="time-label"></span></li>
+      </ul>
+    </div>
+  </template>
+
+  <!-- Template: timeline item (date replaced / received by) -->
+  <template id="tmpl-timeline-item">
+    <li><strong class="tl-label"></strong><span class="time-label"></span></li>
+  </template>
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
