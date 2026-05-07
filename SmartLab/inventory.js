@@ -5,7 +5,7 @@
   "use strict";
 
   const ROWS_PER_PAGE = 8;
-  let currentTab  = "equipment";
+  let currentTab  = "apparatus";
   let currentPage = 1;
   let editingId   = null;
   let deleteId    = null;
@@ -16,20 +16,66 @@
      Sample Data
   ──────────────────────────────────────────── */
   const data = {
-    equipment: [
-      { id:"EQ001", name:"Microscope (Compound)",  category:"Optics",       quantity:12, unit:"pcs", condition:"Good",  status:"Available",    location:"Room A",  lastUpdated:"2025-04-20" },
-      { id:"EQ002", name:"Centrifuge",             category:"Separation",   quantity:4,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room B",  lastUpdated:"2025-04-18" },
-      { id:"EQ003", name:"Hot Plate Stirrer",      category:"Heating",      quantity:2,  unit:"pcs", condition:"Fair",  status:"Low Stock",    location:"Room A",  lastUpdated:"2025-04-15" },
-      { id:"EQ004", name:"Analytical Balance",     category:"Measurement",  quantity:6,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room C",  lastUpdated:"2025-04-22" },
-      { id:"EQ005", name:"Autoclave",              category:"Sterilization",quantity:1,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room B",  lastUpdated:"2025-04-10" },
-      { id:"EQ006", name:"pH Meter",               category:"Measurement",  quantity:3,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room A",  lastUpdated:"2025-04-21" },
-      { id:"EQ007", name:"Spectrophotometer",      category:"Optics",       quantity:1,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room D",  lastUpdated:"2025-04-11" },
-      { id:"EQ008", name:"Vortex Mixer",           category:"Mixing",       quantity:0,  unit:"pcs", condition:"–",     status:"Out of Stock",  location:"Room A",  lastUpdated:"2025-03-30" },
-      { id:"EQ009", name:"Water Bath",             category:"Heating",      quantity:2,  unit:"pcs", condition:"Fair",  status:"Low Stock",    location:"Room C",  lastUpdated:"2025-04-14" },
-      { id:"EQ010", name:"Electric Oven",          category:"Heating",      quantity:3,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room B",  lastUpdated:"2025-04-19" },
-      { id:"EQ011", name:"Fume Hood",              category:"Safety",       quantity:2,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room D",  lastUpdated:"2025-04-08" },
-      { id:"EQ012", name:"Refrigerator (Lab)",     category:"Storage",      quantity:3,  unit:"pcs", condition:"Good",  status:"Available",    location:"Room B",  lastUpdated:"2025-04-17" },
+    apparatus: [
+      { id:"AP001", name:"Bunsen Burner",         description:"Single nozzle gas burner for heating",        brand:"Velp",       location:"Room A / Cabinet 1",   remarks:"Functional" },
+      { id:"AP002", name:"Ring Stand with Clamp", description:"Iron ring stand with adjustable clamp",       brand:"Generic",    location:"Room A / Cabinet 2",   remarks:"2 clamps missing" },
+      { id:"AP003", name:"Tripod Stand",          description:"Three-legged support for beakers/flasks",     brand:"Generic",    location:"Room B / Cabinet 1",   remarks:"Functional" },
+      { id:"AP004", name:"Wire Gauze",            description:"Steel wire mesh for heat distribution",       brand:"Generic",    location:"Room A / Cabinet 1",   remarks:"DEFECTIVE" },
+      { id:"AP005", name:"Crucible with Cover",   description:"Porcelain crucible for high-temp reactions",  brand:"Coors",      location:"Room C / Cabinet 3",   remarks:"107 Crucible; 90 Cover" },
+      { id:"AP006", name:"Evaporating Dish",      description:"Wide-mouth porcelain dish for evaporation",   brand:"Coors",      location:"Room C / Cabinet 3",   remarks:"Functional" },
+      { id:"AP007", name:"Mortar and Pestle",     description:"Grinding tool for solid substances",          brand:"Coors",      location:"Room B / Cabinet 2",   remarks:"Functional" },
+      { id:"AP008", name:"Funnel (Glass)",        description:"Conical funnel for liquid transfer",          brand:"Pyrex",      location:"Room A / Cabinet 2",   remarks:"1 damaged" },
+      { id:"AP009", name:"Condenser (Liebig)",    description:"Water-cooled condenser for distillation",     brand:"Pyrex",      location:"Room D / Cabinet 1",   remarks:"Functional" },
+      { id:"AP010", name:"Separatory Funnel",     description:"Pear-shaped funnel with stopcock",            brand:"Bomex",      location:"Room D / Cabinet 1",   remarks:"Stopcock leaking — for repair" },
+      { id:"AP011", name:"Crucible Tongs",        description:"Metal tongs for handling hot crucibles",      brand:"Generic",    location:"Room C / Cabinet 3",   remarks:"Functional" },
+      { id:"AP012", name:"Clay Triangle",         description:"Triangular clay support for crucibles",       brand:"Generic",    location:"Room A / Cabinet 1",   remarks:"3 damaged" },
     ],
+
+    glassware: [
+      { id:"GL001", name:"Beaker 50mL",              description:"Low-form borosilicate glass beaker",          brand:"Pyrex 18; Bomex 12",                  location:"Cabinet 1",   remarks:"Unused" },
+      { id:"GL002", name:"Beaker 100mL",             description:"Low-form borosilicate glass beaker",          brand:"7 Uni-rex; 2 Schott; GG17-9; 4 Kimax", location:"Cabinet 1", remarks:"2 chipped" },
+      { id:"GL003", name:"Beaker 250mL",             description:"Low-form borosilicate glass beaker",          brand:"18 Pyrex; 4 Bomex; 1 Boro3.3; 1 GG-17; 1 Sterglass", location:"Cabinet 1", remarks:"Unused" },
+      { id:"GL004", name:"Erlenmeyer Flask 250mL",   description:"Conical flask for mixing and heating",        brand:"Pyrex",                               location:"Cabinet 2",   remarks:"Functional" },
+      { id:"GL005", name:"Graduated Cylinder 100mL", description:"Glass cylinder for accurate volume measurement", brand:"Veegee 1; Boro 3.3 1",           location:"Cabinet 2",   remarks:"1 cracked — for disposal" },
+      { id:"GL006", name:"Test Tubes",               description:"Cylindrical borosilicate tubes",               brand:"Bomex",                               location:"Cabinet 2",   remarks:"OUT OF STOCK" },
+      { id:"GL007", name:"Petri Dish",               description:"Shallow glass dish for cultures",              brand:"Pyrex",                               location:"Cabinet 3",   remarks:"Unused" },
+      { id:"GL008", name:"Watch Glass",              description:"Circular concave glass for small volumes",     brand:"Generic",                             location:"Cabinet 3",   remarks:"Functional" },
+      { id:"GL009", name:"Volumetric Flask 100mL",   description:"Flask for precise volume preparation",         brand:"Pyrex",                               location:"Cabinet 4",   remarks:"Functional" },
+      { id:"GL010", name:"Burette 50mL",             description:"Graduated tube with stopcock for titration",   brand:"Pyrex",                               location:"Cabinet 4",   remarks:"Functional" },
+      { id:"GL011", name:"Pipette 10mL",             description:"Calibrated glass pipette for liquid transfer", brand:"Bomex",                               location:"Cabinet 3",   remarks:"2 broken tips" },
+      { id:"GL012", name:"Reflux Condenser",         description:"Vertical condenser for reflux reactions",      brand:"Pyrex",                               location:"Cabinet 4",   remarks:"Functional" },
+    ],
+
+    equipment: [
+      { id:"EQ001", name:"Analytical Balance",      brand:"Shimadzu AUX220",    serial:"SN-2024-001",  propertyNo:"CAS-EQ-001", code:"BAL-001", location:"Room A", calibrationDate:"2025-01-15", calibrationFreq:"Semi-annual", remarks:"FUNCTIONAL - Max. 220g" },
+      { id:"EQ002", name:"Compound Microscope",     brand:"Olympus CX23",       serial:"SN-2023-045",  propertyNo:"CAS-EQ-002", code:"MIC-001", location:"Room B", calibrationDate:"2024-11-01", calibrationFreq:"Annual",       remarks:"FUNCTIONAL" },
+      { id:"EQ003", name:"Centrifuge",              brand:"Eppendorf 5424",     serial:"SN-2022-312",  propertyNo:"CAS-EQ-003", code:"CEN-001", location:"Room B", calibrationDate:"2025-02-10", calibrationFreq:"Annual",       remarks:"For PMS (Preventive Maintenance Service)" },
+      { id:"EQ004", name:"Hot Plate Stirrer",       brand:"Velp Scientifica",   serial:"SN-2021-088",  propertyNo:"CAS-EQ-004", code:"HPS-001", location:"Room A", calibrationDate:"–",           calibrationFreq:"N/A",          remarks:"FOR REPAIR - Heating element malfunction" },
+      { id:"EQ005", name:"pH Meter",               brand:"Hanna HI2211",       serial:"SN-2023-200",  propertyNo:"CAS-EQ-005", code:"PHM-001", location:"Room A", calibrationDate:"2025-03-01", calibrationFreq:"Monthly",      remarks:"FUNCTIONAL" },
+      { id:"EQ006", name:"Spectrophotometer",       brand:"Thermo GENESYS 30",  serial:"SN-2020-075",  propertyNo:"CAS-EQ-006", code:"SPC-001", location:"Room D", calibrationDate:"2025-01-20", calibrationFreq:"Semi-annual",  remarks:"FUNCTIONAL" },
+      { id:"EQ007", name:"Autoclave",              brand:"Tuttnauer 2540M",    serial:"SN-2019-300",  propertyNo:"CAS-EQ-007", code:"AUT-001", location:"Room B", calibrationDate:"2024-12-01", calibrationFreq:"Annual",       remarks:"FUNCTIONAL" },
+      { id:"EQ008", name:"Vortex Mixer",            brand:"IKA MS3",            serial:"SN-2022-411",  propertyNo:"CAS-EQ-008", code:"VTX-001", location:"Room A", calibrationDate:"–",           calibrationFreq:"N/A",          remarks:"NOT FUNCTIONAL" },
+      { id:"EQ009", name:"Water Bath",             brand:"Memmert WNB 7",      serial:"SN-2021-190",  propertyNo:"CAS-EQ-009", code:"WBT-001", location:"Room C", calibrationDate:"2025-02-28", calibrationFreq:"Annual",       remarks:"FOR REPAIR - Thermostat issue" },
+      { id:"EQ010", name:"Electric Oven",           brand:"Memmert UF55",       serial:"SN-2020-503",  propertyNo:"CAS-EQ-010", code:"OVN-001", location:"Room B", calibrationDate:"2025-01-10", calibrationFreq:"Annual",       remarks:"FUNCTIONAL" },
+      { id:"EQ011", name:"Fume Hood",              brand:"Labconco 3970001",   serial:"SN-2018-002",  propertyNo:"CAS-EQ-011", code:"FHD-001", location:"Room D", calibrationDate:"2024-10-15", calibrationFreq:"Annual",       remarks:"For PMS (Preventive Maintenance Service)" },
+      { id:"EQ012", name:"Compound Microscope #2", brand:"Olympus CX23",       serial:"SN-2023-046",  propertyNo:"CAS-EQ-012", code:"MIC-002", location:"Room B", calibrationDate:"2024-11-01", calibrationFreq:"Annual",       remarks:"FOR REPAIR - Coarse adjustment knob not working" },
+    ],
+
+    supplies: [
+      { id:"IT001", name:"Latex Gloves (M)",        brand:"Medline",       location:"Supply Room" },
+      { id:"IT002", name:"Safety Goggles",          brand:"3M",            location:"Supply Room" },
+      { id:"IT003", name:"Lab Coat (M)",            brand:"Generic",       location:"Supply Room" },
+      { id:"IT004", name:"Pipette Tips (10µL)",     brand:"Axygen",        location:"Cabinet 3" },
+      { id:"IT005", name:"Filter Paper",            brand:"Whatman",       location:"Cabinet 3" },
+      { id:"IT006", name:"Disposable Syringes 5mL", brand:"BD",            location:"Supply Room" },
+      { id:"IT007", name:"Rubber Tubing",           brand:"Generic",       location:"Cabinet 4" },
+      { id:"IT008", name:"Aluminum Foil",           brand:"Generic",       location:"Supply Room" },
+      { id:"IT009", name:"Masking Tape",            brand:"3M",            location:"Supply Room" },
+      { id:"IT010", name:"Marker (Permanent)",      brand:"Sharpie",       location:"Supply Room" },
+      { id:"IT011", name:"Micropipette Tips 1mL",   brand:"Axygen",        location:"Cabinet 3" },
+      { id:"IT012", name:"Bench Paper",             brand:"Kimberly-Clark", location:"Supply Room" },
+    ],
+
     chemicals: [
       { id:"CH001", name:"Hydrochloric Acid (HCl)",  category:"Acids",      quantity:5,   unit:"L",  hazard:"Corrosive", status:"Available",    location:"Chem Storage",  expiry:"2026-06-01",  lastUpdated:"2025-04-20" },
       { id:"CH002", name:"Sodium Hydroxide (NaOH)",  category:"Bases",      quantity:2,   unit:"kg", hazard:"Corrosive", status:"Low Stock",    location:"Chem Storage",  expiry:"2026-12-01",  lastUpdated:"2025-04-18" },
@@ -42,37 +88,49 @@
       { id:"CH009", name:"Potassium Permanganate",   category:"Oxidizers",  quantity:100, unit:"g",  hazard:"Oxidizer",  status:"Available",    location:"Oxidizer Cab",  expiry:"2027-06-01",  lastUpdated:"2025-04-05" },
       { id:"CH010", name:"Glacial Acetic Acid",      category:"Acids",      quantity:1,   unit:"L",  hazard:"Corrosive", status:"Low Stock",    location:"Acid Cabinet",  expiry:"2026-04-01",  lastUpdated:"2025-04-20" },
     ],
-    items: [
-      { id:"IT001", name:"Latex Gloves (M)",         category:"PPE",         quantity:300, unit:"pcs", status:"Available",    location:"Supply Room", lastUpdated:"2025-04-22" },
-      { id:"IT002", name:"Safety Goggles",           category:"PPE",         quantity:25,  unit:"pcs", status:"Available",    location:"Supply Room", lastUpdated:"2025-04-20" },
-      { id:"IT003", name:"Lab Coat (M)",             category:"PPE",         quantity:10,  unit:"pcs", status:"Low Stock",    location:"Supply Room", lastUpdated:"2025-04-18" },
-      { id:"IT004", name:"Beaker 100mL",             category:"Glassware",   quantity:40,  unit:"pcs", status:"Available",    location:"Cabinet 1",   lastUpdated:"2025-04-10" },
-      { id:"IT005", name:"Erlenmeyer Flask 250mL",   category:"Glassware",   quantity:20,  unit:"pcs", status:"Available",    location:"Cabinet 1",   lastUpdated:"2025-04-09" },
-      { id:"IT006", name:"Test Tubes",               category:"Glassware",   quantity:0,   unit:"pcs", status:"Out of Stock",  location:"Cabinet 2",   lastUpdated:"2025-03-15" },
-      { id:"IT007", name:"Petri Dishes",             category:"Glassware",   quantity:60,  unit:"pcs", status:"Available",    location:"Cabinet 2",   lastUpdated:"2025-04-21" },
-      { id:"IT008", name:"Pipette Tips (10µL)",      category:"Consumables", quantity:500, unit:"pcs", status:"Available",    location:"Cabinet 3",   lastUpdated:"2025-04-22" },
-      { id:"IT009", name:"Micropipette (1000µL)",    category:"Consumables", quantity:3,   unit:"pcs", status:"Low Stock",    location:"Room A",      lastUpdated:"2025-04-16" },
-      { id:"IT010", name:"Filter Paper",             category:"Consumables", quantity:200, unit:"pcs", status:"Available",    location:"Cabinet 3",   lastUpdated:"2025-04-11" },
-      { id:"IT011", name:"Disposable Syringes 5mL",  category:"Consumables", quantity:100, unit:"pcs", status:"Available",    location:"Supply Room", lastUpdated:"2025-04-20" },
-      { id:"IT012", name:"Rubber Tubing",            category:"Accessories", quantity:0,   unit:"m",   status:"Out of Stock",  location:"Cabinet 4",   lastUpdated:"2025-03-20" },
-    ]
   };
 
   /* ────────────────────────────────────────────
      Column Definitions per Tab
   ──────────────────────────────────────────── */
   const columns = {
-    equipment: [
+    apparatus: [
       { key:"id",          label:"ID" },
-      { key:"name",        label:"Name" },
-      { key:"category",    label:"Category",  type:"chip" },
-      { key:"quantity",    label:"Qty" },
-      { key:"unit",        label:"Unit" },
-      { key:"condition",   label:"Condition" },
-      { key:"location",    label:"Location" },
-      { key:"status",      label:"Status",    type:"badge" },
-      { key:"lastUpdated", label:"Updated" },
+      { key:"name",        label:"Name of Apparatus" },
+      { key:"description", label:"Description" },
+      { key:"brand",       label:"Brand" },
+      { key:"location",    label:"Location / Storage" },
+      { key:"remarks",     label:"Remarks" },
       { key:"_actions",    label:"Actions",   type:"actions" },
+    ],
+    glassware: [
+      { key:"id",          label:"ID" },
+      { key:"name",        label:"Name of Glassware" },
+      { key:"description", label:"Description" },
+      { key:"brand",       label:"Brand" },
+      { key:"location",    label:"Location / Storage" },
+      { key:"remarks",     label:"Remarks" },
+      { key:"_actions",    label:"Actions",   type:"actions" },
+    ],
+    equipment: [
+      { key:"id",               label:"ID" },
+      { key:"name",             label:"Equipment Name" },
+      { key:"brand",            label:"Brand / Model" },
+      { key:"serial",           label:"Serial No." },
+      { key:"propertyNo",       label:"Property No." },
+      { key:"code",             label:"Equipment Code" },
+      { key:"location",         label:"Area / Location of Use" },
+      { key:"calibrationDate",  label:"Calibration Date" },
+      { key:"calibrationFreq",  label:"Calibration Frequency" },
+      { key:"remarks",          label:"Remarks" },
+      { key:"_actions",         label:"Actions",   type:"actions" },
+    ],
+    supplies: [
+      { key:"id",       label:"ID" },
+      { key:"name",     label:"Name of Supply" },
+      { key:"brand",    label:"Brand" },
+      { key:"location", label:"Location / Storage" },
+      { key:"_actions", label:"Actions",   type:"actions" },
     ],
     chemicals: [
       { key:"id",          label:"ID" },
@@ -86,55 +144,57 @@
       { key:"status",      label:"Status",    type:"badge" },
       { key:"_actions",    label:"Actions",   type:"actions" },
     ],
-    items: [
-      { key:"id",          label:"ID" },
-      { key:"name",        label:"Item Name" },
-      { key:"category",    label:"Category",  type:"chip" },
-      { key:"quantity",    label:"Qty" },
-      { key:"unit",        label:"Unit" },
-      { key:"location",    label:"Location" },
-      { key:"status",      label:"Status",    type:"badge" },
-      { key:"lastUpdated", label:"Updated" },
-      { key:"_actions",    label:"Actions",   type:"actions" },
-    ]
   };
 
   /* ────────────────────────────────────────────
      Form Field Definitions per Tab
   ──────────────────────────────────────────── */
   const formFields = {
+    apparatus: [
+      { key:"id",          label:"Item ID",             type:"text",   placeholder:"AP001" },
+      { key:"name",        label:"Name of Apparatus",   type:"text",   placeholder:"e.g. Bunsen Burner",  full:true },
+      { key:"description", label:"Description",         type:"text",   placeholder:"Brief description",   full:true },
+      { key:"brand",       label:"Brand",               type:"text",   placeholder:"e.g. Pyrex, Generic" },
+      { key:"location",    label:"Location / Storage",  type:"text",   placeholder:"e.g. Room A / Cabinet 1" },
+      { key:"remarks",     label:"Remarks",             type:"text",   placeholder:"e.g. Functional, Damaged, For Repair", full:true },
+    ],
+    glassware: [
+      { key:"id",          label:"Item ID",             type:"text",   placeholder:"GL001" },
+      { key:"name",        label:"Name of Glassware",   type:"text",   placeholder:"e.g. Beaker 250mL",   full:true },
+      { key:"description", label:"Description",         type:"text",   placeholder:"Brief description",   full:true },
+      { key:"brand",       label:"Brand",               type:"text",   placeholder:"e.g. 18 Pyrex; 4 Bomex; 1 GG-17" },
+      { key:"location",    label:"Location / Storage",  type:"text",   placeholder:"e.g. Cabinet 1" },
+      { key:"remarks",     label:"Remarks",             type:"text",   placeholder:"e.g. Unused, Chipped",  full:true },
+    ],
     equipment: [
-      { key:"id",          label:"Item ID",    type:"text",   placeholder:"EQ001", full:false },
-      { key:"name",        label:"Name",       type:"text",   placeholder:"Equipment name", full:true },
-      { key:"category",    label:"Category",   type:"select", options:["Optics","Separation","Heating","Measurement","Sterilization","Mixing","Safety","Storage","Other"] },
-      { key:"quantity",    label:"Quantity",   type:"number", placeholder:"0" },
-      { key:"unit",        label:"Unit",       type:"text",   placeholder:"pcs" },
-      { key:"condition",   label:"Condition",  type:"select", options:["Good","Fair","Poor","For Repair"] },
-      { key:"location",    label:"Location",   type:"text",   placeholder:"Room A" },
-      { key:"status",      label:"Status",     type:"select", options:["Available","Low Stock","Out of Stock"] },
-      { key:"lastUpdated", label:"Last Updated", type:"date" },
+      { key:"id",              label:"ID",                     type:"text",   placeholder:"EQ001" },
+      { key:"name",            label:"Equipment Name",          type:"text",   placeholder:"e.g. Analytical Balance", full:true },
+      { key:"brand",           label:"Brand / Model",           type:"text",   placeholder:"e.g. Shimadzu AUX220" },
+      { key:"serial",          label:"Serial No.",              type:"text",   placeholder:"SN-XXXX-XXX" },
+      { key:"propertyNo",      label:"Property No.",            type:"text",   placeholder:"CAS-EQ-XXX" },
+      { key:"code",            label:"Equipment Code",          type:"text",   placeholder:"e.g. BAL-001" },
+      { key:"location",        label:"Area / Location of Use",  type:"text",   placeholder:"e.g. Room A" },
+      { key:"calibrationDate", label:"Calibration Date",        type:"date" },
+      { key:"calibrationFreq", label:"Calibration Frequency",   type:"select", options:["N/A","Monthly","Quarterly","Semi-annual","Annual"] },
+      { key:"remarks",         label:"Remarks",                 type:"text",   placeholder:"e.g. FUNCTIONAL, NOT FUNCTIONAL, FOR REPAIR", full:true },
+    ],
+    supplies: [
+      { key:"id",       label:"Item ID",            type:"text",   placeholder:"IT001" },
+      { key:"name",     label:"Name of Supply",     type:"text",   placeholder:"e.g. Latex Gloves (M)", full:true },
+      { key:"brand",    label:"Brand",              type:"text",   placeholder:"e.g. Medline, 3M" },
+      { key:"location", label:"Location / Storage", type:"text",   placeholder:"e.g. Supply Room" },
     ],
     chemicals: [
-      { key:"id",          label:"Item ID",    type:"text",   placeholder:"CH001", full:false },
-      { key:"name",        label:"Chemical Name", type:"text", placeholder:"Chemical name", full:true },
-      { key:"category",    label:"Category",   type:"select", options:["Acids","Bases","Solvents","Salts","Biological","Oxidizers","Other"] },
-      { key:"quantity",    label:"Quantity",   type:"number", placeholder:"0" },
-      { key:"unit",        label:"Unit",       type:"select", options:["L","mL","kg","g","mg"] },
-      { key:"hazard",      label:"Hazard",     type:"select", options:["Low","Corrosive","Flammable","Toxic","Oxidizer","Explosive"] },
-      { key:"location",    label:"Location",   type:"text",   placeholder:"Storage location" },
-      { key:"expiry",      label:"Expiry Date", type:"date" },
-      { key:"status",      label:"Status",     type:"select", options:["Available","Low Stock","Out of Stock"] },
+      { key:"id",          label:"Item ID",       type:"text",   placeholder:"CH001", full:false },
+      { key:"name",        label:"Chemical Name", type:"text",   placeholder:"Chemical name", full:true },
+      { key:"category",    label:"Category",      type:"select", options:["Acids","Bases","Solvents","Salts","Biological","Oxidizers","Other"] },
+      { key:"quantity",    label:"Quantity",      type:"number", placeholder:"0" },
+      { key:"unit",        label:"Unit",          type:"select", options:["L","mL","kg","g","mg"] },
+      { key:"hazard",      label:"Hazard",        type:"select", options:["Low","Corrosive","Flammable","Toxic","Oxidizer","Explosive"] },
+      { key:"location",    label:"Location",      type:"text",   placeholder:"Storage location" },
+      { key:"expiry",      label:"Expiry Date",   type:"date" },
+      { key:"status",      label:"Status",        type:"select", options:["Available","Low Stock","Out of Stock"] },
     ],
-    items: [
-      { key:"id",          label:"Item ID",    type:"text",   placeholder:"IT001", full:false },
-      { key:"name",        label:"Item Name",  type:"text",   placeholder:"Item name", full:true },
-      { key:"category",    label:"Category",   type:"select", options:["PPE","Glassware","Consumables","Accessories","Other"] },
-      { key:"quantity",    label:"Quantity",   type:"number", placeholder:"0" },
-      { key:"unit",        label:"Unit",       type:"text",   placeholder:"pcs" },
-      { key:"location",    label:"Location",   type:"text",   placeholder:"Storage location" },
-      { key:"status",      label:"Status",     type:"select", options:["Available","Low Stock","Out of Stock"] },
-      { key:"lastUpdated", label:"Last Updated", type:"date" },
-    ]
   };
 
   /* ────────────────────────────────────────────
@@ -148,7 +208,7 @@
   }
 
   function generateId() {
-    const prefix = { equipment:"EQ", chemicals:"CH", items:"IT" }[currentTab];
+    const prefix = { apparatus:"AP", glassware:"GL", equipment:"EQ", supplies:"IT", chemicals:"CH" }[currentTab];
     const nums   = data[currentTab].map(r => parseInt(r.id.replace(/\D/g,""), 10)).filter(Boolean);
     const next   = (nums.length ? Math.max(...nums) : 0) + 1;
     return prefix + String(next).padStart(3, "0");
@@ -165,7 +225,8 @@
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
     document.getElementById("searchInput").value = "";
     document.getElementById("statusFilter").value = "";
-    populateCategoryFilter();
+    document.getElementById("brandFilter").value = "";
+    populateBrandFilter();
     renderStats();
     renderTable();
   };
@@ -173,11 +234,24 @@
   /* ────────────────────────────────────────────
      Category Filter
   ──────────────────────────────────────────── */
-  function populateCategoryFilter() {
-    const sel  = document.getElementById("categoryFilter");
-    const cats = [...new Set(data[currentTab].map(r => r.category))].sort();
-    sel.innerHTML = '<option value="">All Categories</option>' +
-      cats.map(c => `<option value="${c}">${c}</option>`).join("");
+  function populateBrandFilter() {
+    const sel   = document.getElementById("brandFilter");
+    const label = currentTab === "equipment" ? "All Brands/Models" : "All Brands";
+
+    const brands = [...new Set(
+      data[currentTab].flatMap(r => {
+        if (!r.brand) return [];
+        return r.brand
+          .split(/\s*;\s*/)                      // split on semicolons
+          .map(s => s.replace(/^\d+\s+/, "")     // strip leading "18 " or "4 "
+                    .replace(/\s+\d+$/, "")     // strip trailing " 12" or " 1"
+                    .trim())
+          .filter(Boolean);
+      })
+    )].sort();
+
+    sel.innerHTML = `<option value="">${label}</option>` +
+      brands.map(b => `<option value="${b}">${b}</option>`).join("");
   }
 
   /* ────────────────────────────────────────────
@@ -186,9 +260,13 @@
   function renderStats() {
     const rows  = data[currentTab];
     const total = rows.length;
-    const ok    = rows.filter(r => r.status === "Available").length;
-    const low   = rows.filter(r => r.status === "Low Stock").length;
-    const empty = rows.filter(r => r.status === "Out of Stock").length;
+
+    // For tabs without status, just show total
+    const hasStatus = rows.some(r => r.status);
+    const ok    = hasStatus ? rows.filter(r => r.status === "Available").length : "–";
+    const low   = hasStatus ? rows.filter(r => r.status === "Low Stock").length : "–";
+    const empty = hasStatus ? rows.filter(r => r.status === "Out of Stock").length : "–";
+
     document.getElementById("statsRow").innerHTML = `
       <div class="stat-card">
         <div class="stat-icon blue"><i class='bx bx-list-ul'></i></div>
@@ -213,14 +291,18 @@
      Filter + Render Table
   ──────────────────────────────────────────── */
   function getFiltered() {
-    const q   = document.getElementById("searchInput").value.toLowerCase();
-    const st  = document.getElementById("statusFilter").value;
-    const cat = document.getElementById("categoryFilter").value;
+    const q  = document.getElementById("searchInput").value.toLowerCase();
+    const st = document.getElementById("statusFilter").value;
+    const br = document.getElementById("brandFilter").value;
+
     return data[currentTab].filter(row => {
-      const matchQ   = !q   || Object.values(row).some(v => String(v).toLowerCase().includes(q));
-      const matchSt  = !st  || row.status   === st;
-      const matchCat = !cat || row.category === cat;
-      return matchQ && matchSt && matchCat;
+      const matchQ  = !q  || Object.values(row).some(v => String(v).toLowerCase().includes(q));
+      const matchSt = !st || row.status === st;
+      const matchBr = !br || (row.brand || "")
+        .split(/\s*;\s*/)
+        .map(s => s.replace(/^\d+\s+/, "").replace(/\s+\d+$/, "").trim())
+        .includes(br);
+      return matchQ && matchSt && matchBr;
     });
   }
 
@@ -273,7 +355,7 @@
                   <button class="btn-icon btn-del"  title="Delete" onclick="openDeleteModal('${row.id}')"><i class='bx bx-trash'></i></button>
                 </div>
               </td>`;
-            return `<td>${row[col.key] !== undefined ? row[col.key] : "–"}</td>`;
+            return `<td>${row[col.key] !== undefined && row[col.key] !== "" ? row[col.key] : "–"}</td>`;
           }).join("")}
         </tr>
       `).join("");
@@ -332,7 +414,6 @@
     editingId = null;
     document.getElementById("modalTitle").textContent = "Add Item";
     document.getElementById("modalBody").innerHTML = buildForm(null);
-    // Pre-fill ID and date
     const idField = document.getElementById("ff_id");
     if (idField) idField.value = generateId();
     const dateField = document.getElementById("ff_lastUpdated");
@@ -359,7 +440,6 @@
 
     if (!obj.name) { alert("Name is required."); return; }
 
-    // Auto-set status by quantity if user didn't change it
     if (obj.quantity !== undefined) {
       const qty = parseInt(obj.quantity, 10);
       if (!isNaN(qty) && qty === 0 && obj.status === "Available") obj.status = "Out of Stock";
@@ -374,7 +454,7 @@
     }
 
     closeModal();
-    populateCategoryFilter();
+    populateBrandFilter();
     renderStats();
     renderTable();
   };
@@ -397,7 +477,7 @@
   window.confirmDelete = function () {
     data[currentTab] = data[currentTab].filter(r => r.id !== deleteId);
     closeDelete();
-    populateCategoryFilter();
+    populateBrandFilter();
     renderStats();
     renderTable();
   };
@@ -411,7 +491,7 @@
   /* ────────────────────────────────────────────
      Init
   ──────────────────────────────────────────── */
-  populateCategoryFilter();
+  populateBrandFilter();
   renderStats();
   renderTable();
 
