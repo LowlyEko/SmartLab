@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservations | SmartLab</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-box {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    body.dark .modal-box { background: #252624; color: #eee; }
+  </style>
+</head>
+<body>
+  
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <i class='bx bx-flask'></i>
+      <span>CASLab</span>
+    </div>
+    <div class="nav-menu">
+      <a href="index.html"><i class='bx bx-home'></i> Dashboard</a>
+      <a href="reservations.html" class="active"><i class='bx bx-calendar'></i> Reservations</a>
+      <a href="inventory.html"><i class='bx bx-package'></i> Inventory</a>
+      <a href="accountability.html"><i class='bx bx-error'></i> Accountability</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="topbar">
+      <h1>My Reservations</h1>
+      <button class="btn-add" onclick="openNewReservationModal()">
+        <i class='bx bx-plus'></i> New Reservation
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="search-box">
+        <i class='bx bx-search'></i>
+        <input type="text" id="search-input" placeholder="Search reservations..." onkeyup="filterReservations()">
+      </div>
+      <select id="status-filter" onchange="filterReservations()" class="filter-select">
+        <option value="all">All Status</option>
+        <option value="TO_REVIEW">Pending Review</option>
+        <option value="ALLOWED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="table-header-bar">
+        <h2>Reservation Records</h2>
+        <span id="table-meta">Showing all reservations</span>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Reservation ID</th>
+            <th>Date Needed</th>
+            <th>Time</th>
+            <th>Activity Title</th>
+            <th>Items Requested</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reservations-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- New Reservation Modal -->
+  <div id="new-res-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>New Reservation Request</h2>
+      
+      <form id="reservation-form" onsubmit="submitReservation(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Needed *</label>
+            <input type="date" id="date-needed" required>
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <div style="display:flex; gap:10px;">
+              <input type="time" id="time-start" required>
+              <span style="align-self:center;">to</span>
+              <input type="time" id="time-end" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Activity / Purpose *</label>
+          <input type="text" id="activity-title" placeholder="e.g. Organic Chemistry Experiment" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-submit">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/config.js"></script>
+  <script type="module" src="js/reservation.js"></script>
+</body>
+</html>

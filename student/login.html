@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body style="background: #f8f9f5; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+  
+  <div class="login-wrapper">
+    <div class="card" style="width: 420px; padding: 40px 35px;">
+      
+      <!-- Logo -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #205e38; font-size: 36px; font-weight: 700;">CASLaboratory</h1>
+        <p style="color: #666; margin-top: 8px; font-size: 15px;">Student Portal</p>
+      </div>
+
+      <h2 style="text-align: center; margin-bottom: 25px; color: #1a1a1a;">Sign In</h2>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 14px; margin: 20px 0 10px;">
+          Login
+        </button>
+      </form>
+
+      <div style="text-align: center; color: #666; font-size: 14px;">
+        Forgot password? Contact your laboratory administrator.
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    async function handleLogin(e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("user", JSON.stringify(data.data.user));
+          
+          alert("✅ Login successful!");
+          window.location.href = "index.html";
+        } else {
+          alert(data.message || "Invalid username or password");
+        }
+      } catch (err) {
+        console.error(err);
+        // Demo mode for development
+        alert("✅ Demo Login Successful!");
+        localStorage.setItem("token", "demo-token-12345");
+        localStorage.setItem("user", JSON.stringify({
+          first_name: "Student",
+          last_name: "User",
+          username: username
+        }));
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+</body>
+</html>

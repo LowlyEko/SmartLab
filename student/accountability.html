@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab - Accountability</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">CASLaboratory</div>
+    <div class="nav-menu">
+      <a href="index.html"><i class='bx bx-home'></i> Dashboard</a>
+      <a href="reservations.html"><i class='bx bx-calendar'></i> Reservations</a>
+      <a href="inventory.html"><i class='bx bx-package'></i> Inventory</a>
+      <a href="accountability.html" class="active"><i class='bx bx-error-alt'></i> Accountability</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="topbar">
+      <h1>My Accountability</h1>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-icon"><i class='bx bx-error'></i></div>
+        <div>
+          <div class="summary-label">Pending</div>
+          <div class="summary-value" id="pending-count">0</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#e8f5e9; color:#2e7d32;">
+          <i class='bx bx-check-circle'></i>
+        </div>
+        <div>
+          <div class="summary-label">Resolved</div>
+          <div class="summary-value" id="resolved-count">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="table-header-bar">
+        <h2>Accountability Records</h2>
+        <div class="table-meta" id="table-meta">Showing all records</div>
+      </div>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Notes</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="accountability-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Record Details</h2>
+      <div id="detail-content"></div>
+      <div class="modal-actions">
+        <button onclick="closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/accountability.js"></script>
+</body>
+</html>
