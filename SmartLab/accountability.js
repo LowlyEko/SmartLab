@@ -12,6 +12,8 @@
   let filterStatus = "all";
   let searchQuery = "";
   let editingId = null;
+  let sortKey = null;
+  let sortDir = 1;
 
   /* ============================
      HELPERS
@@ -41,20 +43,39 @@
   }
 
   function getFilteredRecords() {
-    return records.filter(r => {
-      const matchStatus = filterStatus === "all" || r.remarks === filterStatus;
-      const q = searchQuery.toLowerCase();
-      const namesStr = (r.persons || []).join(" ").toLowerCase();
-      const matchSearch = !q
-        || namesStr.includes(q)
-        || r.id.toLowerCase().includes(q)
-        || r.materialsBroken.toLowerCase().includes(q)
-        || (r.teacher || "").toLowerCase().includes(q)
-        || (r.subject || "").toLowerCase().includes(q)
-        || (r.programSection || "").toLowerCase().includes(q);
-      return matchStatus && matchSearch;
+  let result = records.filter(r => {
+    const matchStatus = filterStatus === "all" || r.remarks === filterStatus;
+    const q = searchQuery.toLowerCase();
+    const namesStr = (r.persons || []).join(" ").toLowerCase();
+    const matchSearch = !q
+      || namesStr.includes(q)
+      || r.id.toLowerCase().includes(q)
+      || r.materialsBroken.toLowerCase().includes(q)
+      || (r.teacher || "").toLowerCase().includes(q)
+      || (r.subject || "").toLowerCase().includes(q)
+      || (r.programSection || "").toLowerCase().includes(q);
+    return matchStatus && matchSearch;
+  });
+
+  if (sortKey) {
+    result = [...result].sort((a, b) => {
+      let av = sortKey === "persons"
+        ? (a.persons || []).join(", ")
+        : (a[sortKey] || "");
+      let bv = sortKey === "persons"
+        ? (b.persons || []).join(", ")
+        : (b[sortKey] || "");
+      // date fields sort chronologically
+      if (["dateBorrowed", "deadline", "dateReplaced"].includes(sortKey)) {
+        av = av || "9999-12-31";
+        bv = bv || "9999-12-31";
+      }
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
     });
   }
+
+  return result;
+}
 
   /* ============================
      SUMMARY CARDS
@@ -457,5 +478,29 @@
   ============================ */
   renderSummary();
   renderTable();
+  document.querySelectorAll(".accountability-table thead th[data-sort]").forEach(th => {
+  th.style.cursor = "pointer";
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) {
+      sortDir *= -1;
+    } else {
+      sortKey = key;
+      sortDir = 1;
+    }
+    // update sort icon
+    document.querySelectorAll(".accountability-table thead th[data-sort] i").forEach(icon => {
+      icon.className = "bx bx-sort-alt-2";
+      icon.style.opacity = ".6";
+    });
+    const icon = th.querySelector("i");
+    if (icon) {
+      icon.className = sortDir === 1 ? "bx bx-sort-up" : "bx bx-sort-down";
+      icon.style.opacity = "1";
+    }
+    currentPage = 1;
+    renderTable();
+  });
+});
 
 })();
