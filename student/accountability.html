@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab - Accountability</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: #2d3748; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 9px 12px; border: 1px solid #cbd5e0;
+      border-radius: 6px; font-size: 0.9rem; box-sizing: border-box;
+    }
+    .form-group textarea { resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+    .btn-cancel { background: #edf2f7; border: none; padding: 9px 20px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+    .incident-type-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+    }
+    .incident-type-badge.damaged { background: #fff3cd; color: #856404; }
+    .incident-type-badge.lost { background: #f8d7da; color: #842029; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="../SmartLab/CAS Logo.png" alt="CAS Logo" onerror="this.style.display='none'">
+        </span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+          <div class="portal-label">Student Portal</div>
+        </div>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="index.html"><i class="bx bxs-dashboard icon"></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservations.html"><i class="bx bx-calendar-check icon"></i><span class="text nav-text">Reservations</span></a></li>
+          <li class="nav-link"><a href="inventory.html"><i class="bx bx-package icon"></i><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="accountability.html" class="active"><i class="bx bx-shield icon"></i><span class="text nav-text">Accountability</span></a></li>
+        </ul>
+      </div>
+      <div class="bottom-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class="bx bx-moon icon moon"></i>
+            <i class="bx bx-sun icon sun"></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+<div class="main-content">
+    <div class="topbar">
+      <h1>My Accountability</h1>
+      <button class="btn-add" onclick="openReportModal()">
+        <i class='bx bx-plus'></i> Report Incident
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-icon"><i class='bx bx-error'></i></div>
+        <div>
+          <div class="summary-label">Pending</div>
+          <div class="summary-value" id="pending-count">0</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#e8f5e9; color:#2e7d32;">
+          <i class='bx bx-check-circle'></i>
+        </div>
+        <div>
+          <div class="summary-label">Resolved</div>
+          <div class="summary-value" id="resolved-count">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="table-header-bar">
+        <h2>Accountability Records</h2>
+        <div class="table-meta" id="table-meta">Showing all records</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date Reported</th>
+            <th>Reservation</th>
+            <th>Item</th>
+            <th>Type</th>
+            <th>Qty</th>
+            <th>Notes</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="accountability-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Report Incident Modal -->
+  <div id="report-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color: var(--text);">Report Incident</h2>
+        <span onclick="closeReportModal()" style="cursor:pointer; font-size:24px;">&times;</span>
+      </div>
+
+      <form id="report-form">
+        <div class="form-group">
+          <label>Linked Reservation (Optional)</label>
+          <select id="report-reservation-id">
+            <option value="">— None / Not from a reservation —</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Incident Type *</label>
+            <select id="report-incident-type" required>
+              <option value="">Select type...</option>
+              <option value="DAMAGED">Damaged</option>
+              <option value="LOST">Lost</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date of Incident *</label>
+            <input type="datetime-local" id="report-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Item / Equipment *</label>
+          <select id="report-item-id" required onchange="onItemSelected()">
+            <option value="">— Select an item —</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Item Description *</label>
+          <input type="text" id="report-item-description" placeholder="e.g. Erlenmeyer Flask 500mL" required>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity *</label>
+          <input type="number" id="report-quantity" value="1" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Details / How it happened *</label>
+          <textarea id="report-specifics" rows="3" placeholder="Briefly describe what happened..." required></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeReportModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color: var(--text);">Incident Details</h2>
+        <span onclick="closeDetailModal()" style="cursor:pointer; font-size:24px;">&times;</span>
+      </div>
+      <div id="detail-content"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/accountability.js"></script>
+  <script src="js/sidebar.js"></script>
+</body>
+</html>

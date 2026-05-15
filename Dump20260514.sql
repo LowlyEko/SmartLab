@@ -1,0 +1,564 @@
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+--
+-- Host: localhost    Database: smartlab_db
+-- ------------------------------------------------------
+-- Server version	8.0.46
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `accountability`
+--
+
+DROP TABLE IF EXISTS `accountability`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `accountability` (
+  `accountability_id` int NOT NULL AUTO_INCREMENT,
+  `reservation_id` int NOT NULL,
+  `responsible_student` int NOT NULL,
+  `professor_id` int DEFAULT NULL,
+  `custodian_id` int DEFAULT NULL,
+  `item_id` int NOT NULL,
+  `item_description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `specifics` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quantity_broken` int NOT NULL DEFAULT '1',
+  `date_time_broken` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `resolution_status` enum('PENDING','RESOLVED','OVERDUE') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `resolution_notes` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date_replaced` datetime(3) DEFAULT NULL,
+  `received_by` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` datetime(3) NOT NULL,
+  PRIMARY KEY (`accountability_id`),
+  KEY `accountability_reservation_id_fkey` (`reservation_id`),
+  KEY `accountability_responsible_student_fkey` (`responsible_student`),
+  KEY `accountability_item_id_fkey` (`item_id`),
+  CONSTRAINT `accountability_item_id_fkey` FOREIGN KEY (`item_id`) REFERENCES `inventory_items` (`item_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `accountability_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `accountability_responsible_student_fkey` FOREIGN KEY (`responsible_student`) REFERENCES `users` (`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `accountability`
+--
+
+LOCK TABLES `accountability` WRITE;
+/*!40000 ALTER TABLE `accountability` DISABLE KEYS */;
+/*!40000 ALTER TABLE `accountability` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `activity_log`
+--
+
+DROP TABLE IF EXISTS `activity_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `activity_log` (
+  `log_id` int NOT NULL AUTO_INCREMENT,
+  `actor_id` int DEFAULT NULL,
+  `action` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `target_table` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `target_id` int DEFAULT NULL,
+  `details` json DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`log_id`),
+  KEY `activity_log_actor_id_fkey` (`actor_id`),
+  CONSTRAINT `activity_log_actor_id_fkey` FOREIGN KEY (`actor_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_log`
+--
+
+LOCK TABLES `activity_log` WRITE;
+/*!40000 ALTER TABLE `activity_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `activity_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `brands`
+--
+
+DROP TABLE IF EXISTS `brands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `brands` (
+  `brand_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `brand_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`brand_id`),
+  UNIQUE KEY `brand_id` (`brand_id`),
+  UNIQUE KEY `brand_name` (`brand_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `brands`
+--
+
+LOCK TABLES `brands` WRITE;
+/*!40000 ALTER TABLE `brands` DISABLE KEYS */;
+INSERT INTO `brands` VALUES (1,'01TX'),(2,'Advantech'),(3,'Bomex'),(4,'Boro 3.3'),(5,'Borosil'),(6,'Borosilicate'),(7,'Brandless'),(8,'Citoglass'),(9,'Cordial'),(10,'Creston'),(11,'DIN'),(12,'Dragonlab'),(13,'Duran'),(14,'FEATHER'),(15,'Fieldmaster'),(16,'GG-17'),(17,'II'),(18,'Isolab'),(19,'Kimax'),(20,'Kimtech Wipes'),(21,'MBL'),(22,'MC'),(23,'MEDRO'),(24,'Ohaus'),(25,'Partners'),(26,'Pyrex'),(28,'Sanwa'),(29,'Schott'),(30,'Sterglass'),(31,'Sterlglass'),(27,'SURGITECH'),(32,'TEKK'),(33,'TLS'),(34,'Tyler'),(35,'Uni-rex'),(36,'Union'),(37,'Unirex'),(38,'Videox'),(39,'WHATMAN'),(40,'YZ');
+/*!40000 ALTER TABLE `brands` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory`
+--
+
+DROP TABLE IF EXISTS `inventory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory` (
+  `item_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `category` enum('EQUIPMENT','MATERIAL') NOT NULL,
+  `description` text,
+  `status` enum('AVAILABLE','UNAVAILABLE','MAINTENANCE') DEFAULT 'AVAILABLE',
+  PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory`
+--
+
+LOCK TABLES `inventory` WRITE;
+/*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
+INSERT INTO `inventory` VALUES (1,'Autoclave','EQUIPMENT','Steam sterilizer','AVAILABLE'),(2,'Analytical Balance','EQUIPMENT','High precision scale','AVAILABLE'),(3,'Oven','EQUIPMENT','Drying/heating oven','AVAILABLE'),(4,'Incubator','EQUIPMENT','Cell/microbial incubator','AVAILABLE'),(5,'Refrigerator','EQUIPMENT','Cold storage','AVAILABLE'),(6,'Centrifuge','EQUIPMENT','High-speed separator','AVAILABLE'),(7,'Fume Hood','EQUIPMENT','Chemical ventilation','AVAILABLE'),(8,'Laminar Flow','EQUIPMENT','Sterile workstation','AVAILABLE'),(9,'Circulating Water Vacuum Pump','EQUIPMENT','Suction/filtration pump','AVAILABLE'),(10,'Rotary Evaporator','EQUIPMENT','Solvent removal','AVAILABLE'),(11,'Electric Waterbath','EQUIPMENT','Controlled heating bath','AVAILABLE');
+/*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_apparatus`
+--
+
+DROP TABLE IF EXISTS `inventory_apparatus`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_apparatus` (
+  `apparatus_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `apparatus_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` bigint unsigned NOT NULL,
+  `remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quantity` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`apparatus_id`),
+  UNIQUE KEY `apparatus_id` (`apparatus_id`),
+  KEY `fk_apparatus_location` (`location_id`),
+  CONSTRAINT `fk_apparatus_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_apparatus`
+--
+
+LOCK TABLES `inventory_apparatus` WRITE;
+/*!40000 ALTER TABLE `inventory_apparatus` DISABLE KEYS */;
+INSERT INTO `inventory_apparatus` VALUES (1,'Alcohol lamp',NULL,2,NULL,31),(2,'Alligator clips',NULL,2,'(1) damaged',0),(3,'Aluminum Pan',NULL,2,NULL,24),(4,'Ammeter',NULL,2,NULL,11),(5,'Aspirator',NULL,2,NULL,23),(6,'Breadboard',NULL,2,NULL,7),(7,'Bunsen burner',NULL,2,NULL,17),(8,'Burette brush',NULL,2,NULL,21),(9,'Burette clamp',NULL,2,NULL,17),(10,'Calorimeter',NULL,2,NULL,18),(11,'Claw clamp',NULL,2,NULL,40),(12,'Clay triangle',NULL,2,NULL,71),(13,'Compass',NULL,2,'DEFECTIVE',59),(14,'Crucible tong',NULL,2,NULL,66),(15,'Crucible w/ cover','30 mL',2,'107 Crucible; 90 Cover',0),(16,'Desiccator',NULL,3,'4 with cap, 2 no cap',0),(17,'Dissecting Set: Diamond needle',NULL,2,NULL,11),(18,'Dissecting Set: Forceps',NULL,2,NULL,26),(19,'Dissecting Set: Kelly Forceps',NULL,2,NULL,5),(20,'Dissecting Set: Knife',NULL,2,NULL,15),(21,'Dissecting Set: Magnifying Glass',NULL,2,NULL,19),(22,'Dissecting Set: Probe',NULL,2,NULL,18),(23,'Dissecting Set: Scalpel','Stainless steel holder',2,NULL,26),(24,'Dissecting Set: Scalpel','Black plastic holder',2,NULL,15),(25,'Dissecting Set: Scalpel holder','#3',2,NULL,20),(26,'Dissecting Set: Scalpel holder','#4',2,NULL,12),(27,'Dissecting Set: scissor',NULL,2,NULL,30),(28,'Dissecting Set: Section Lifter',NULL,2,NULL,26),(29,'Dissecting Set: spatula',NULL,2,NULL,30),(30,'Dissecting Pan',NULL,2,NULL,20),(31,'Dissolved Oxygen Meter',NULL,1,NULL,3),(32,'Double beam balance',NULL,2,'needs to be calibrated',12),(33,'Dynamic Cart',NULL,2,NULL,12),(34,'Evaporating dish','60 mL',2,NULL,38),(35,'Evaporating dish','75 mL',2,NULL,12),(36,'Evaporating dish','100 mL',2,NULL,39),(37,'Evaporating dish','125 mL',2,NULL,1),(38,'Evaporating dish','270 mL',2,NULL,1),(39,'Extension clamp',NULL,2,NULL,26),(40,'Friction Board',NULL,2,NULL,12),(41,'Friction Table',NULL,2,NULL,17),(42,'Force table',NULL,2,NULL,44),(43,'Funnel holder',NULL,2,NULL,41),(44,'Hand Refractometer',NULL,1,NULL,5),(45,'Hand Tally Meter',NULL,1,NULL,2),(46,'Hemacytometer',NULL,1,NULL,7),(47,'Hygrometer',NULL,2,NULL,36),(48,'Inclined plane',NULL,2,NULL,4),(49,'Iron clamp',NULL,2,'4 Working; 17 Not Working Needs to procure',21),(50,'Iron ring',NULL,2,NULL,46),(51,'Laboratory spoon','Plastic',2,NULL,9),(52,'Laboratory spoon','Stainless steel',2,NULL,8),(53,'Magnet','Horse shoe, red & blue poles',2,NULL,12),(54,'Magnet','Straight, red & blue poles',2,NULL,51),(55,'Magnet','Gray poles',2,NULL,6),(56,'Magnet','Red poles',2,NULL,2),(57,'Magnet','Bars',2,'9 unopened',11),(58,'Magnetic compass',NULL,2,NULL,8),(59,'Magnifying glass','Black plastic holder',2,NULL,52),(60,'Magnifying glass','Metal holder',2,NULL,15),(61,'Metal Soil Borer',NULL,1,NULL,1),(62,'Meter stick','Yellow',2,NULL,36),(63,'Meter stick','Brown',2,'Old',28),(64,'Mirror',NULL,2,NULL,4),(65,'Mortar and pestle',NULL,2,'86 Mortars; 108 Pestles',0),(66,'Multitester',NULL,2,'9 Sanwa; 8 Creston',17),(67,'Ocular micrometer',NULL,1,NULL,3),(68,'Pantograph',NULL,2,NULL,28),(69,'Pinch Cock Clamp',NULL,2,NULL,32),(70,'Pipette tip box/rack','for 1000µl',5,NULL,1),(71,'Pipette tip box/rack','for 200µl',5,NULL,1),(72,'Pipette tip box/rack','for 10µl',1,NULL,3),(73,'Pipettor','2µ-20µl',1,NULL,1),(74,'Pipettor','20µ-200µl',1,NULL,1),(75,'Pipettor','100µ-1000µl',1,NULL,1),(76,'Prism',NULL,2,NULL,18),(77,'Protractor',NULL,2,NULL,21),(78,'Psychrometer',NULL,1,NULL,10),(79,'Pulley',NULL,2,NULL,64),(80,'Ruler','Plastic',2,NULL,45),(81,'Salinometer',NULL,2,NULL,23),(82,'Scissors','Black plastic holder',2,NULL,15),(83,'Secchi disk',NULL,1,NULL,1),(84,'Set of Weights','1 gram - 100 grams',2,NULL,1),(85,'Set of Weights','10 grams - 200 grams',2,NULL,6),(86,'Set of Weights','10 grams - 1 kg',2,NULL,6),(87,'Set of Weights','5 grams - 500 grams',2,'Weights are not complete',6),(88,'Set of Weights','Slotted weights',2,NULL,1),(89,'Sieve','5-50µm',1,NULL,1),(90,'Sieve','25µm',1,NULL,1),(91,'Sieve','38µm',1,NULL,1),(92,'Sieve','45µm',1,NULL,1),(93,'Sieve','63µm',1,NULL,1),(94,'Sieve','75µm',1,NULL,1),(95,'Sieve','0.560mm',1,NULL,1),(96,'Slide Staining Glass Jar',NULL,1,NULL,0),(97,'Slide Trays',NULL,1,NULL,10),(98,'Spatula',NULL,2,NULL,49),(99,'Spoonula',NULL,2,NULL,3),(100,'Spring balance','5N',2,NULL,20),(101,'Spring balance','8N - 10 N',2,NULL,4),(102,'Spring balance','20 N',2,NULL,10),(103,'Stage micrometer',NULL,1,NULL,6),(104,'Test tube brush',NULL,2,NULL,123),(105,'Test tube holder',NULL,2,NULL,191),(106,'Test tube rack',NULL,2,NULL,77),(107,'Thermometer','Alcohol',2,NULL,18),(108,'Thermometer','Mercury',2,NULL,40),(109,'Transect tape',NULL,2,NULL,6),(110,'Triangular file',NULL,2,NULL,4),(111,'Triple beam balance',NULL,2,'needs to be calibrated',8),(112,'Tripod',NULL,2,NULL,15),(113,'Tuning Fork',NULL,2,NULL,40),(114,'Vernier caliper',NULL,2,'23 in box; 26 opened',49),(115,'Voltmeter',NULL,2,NULL,15),(116,'Wash bottle',NULL,2,NULL,16),(117,'Waterbath',NULL,2,NULL,15),(118,'Weight hanger',NULL,2,NULL,37),(119,'Wire gauze',NULL,2,NULL,92),(120,'Wire stirrer',NULL,2,NULL,5),(121,'Wooden block',NULL,2,NULL,58);
+/*!40000 ALTER TABLE `inventory_apparatus` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_apparatus_brand`
+--
+
+DROP TABLE IF EXISTS `inventory_apparatus_brand`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_apparatus_brand` (
+  `apparatus_id` bigint unsigned NOT NULL,
+  `brand_id` bigint unsigned NOT NULL,
+  `quantity` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`apparatus_id`,`brand_id`),
+  KEY `fk_apparatus_brand_brand` (`brand_id`),
+  CONSTRAINT `fk_apparatus_brand_apparatus` FOREIGN KEY (`apparatus_id`) REFERENCES `inventory_apparatus` (`apparatus_id`),
+  CONSTRAINT `fk_apparatus_brand_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`brand_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_apparatus_brand`
+--
+
+LOCK TABLES `inventory_apparatus_brand` WRITE;
+/*!40000 ALTER TABLE `inventory_apparatus_brand` DISABLE KEYS */;
+INSERT INTO `inventory_apparatus_brand` VALUES (66,10,0),(66,28,0),(73,12,0),(74,12,0),(75,12,0),(83,15,0),(87,24,0),(89,34,0),(90,34,0),(91,34,0),(92,34,0),(93,34,0),(94,34,0),(95,2,0);
+/*!40000 ALTER TABLE `inventory_apparatus_brand` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_chemicals`
+--
+
+DROP TABLE IF EXISTS `inventory_chemicals`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_chemicals` (
+  `chemical_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `chemical_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` bigint unsigned NOT NULL,
+  `remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`chemical_id`),
+  UNIQUE KEY `chemical_id` (`chemical_id`),
+  KEY `fk_chemicals_location` (`location_id`),
+  CONSTRAINT `fk_chemicals_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_chemicals`
+--
+
+LOCK TABLES `inventory_chemicals` WRITE;
+/*!40000 ALTER TABLE `inventory_chemicals` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inventory_chemicals` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_equipment`
+--
+
+DROP TABLE IF EXISTS `inventory_equipment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_equipment` (
+  `equipment_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `equipment_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `brand` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `model` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `serial_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `property_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `equipment_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` bigint unsigned NOT NULL,
+  `calibration_date` date DEFAULT NULL,
+  `calibration_frequency` enum('Annual','Semi-Annual','Monthly','As Needed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('FUNCTIONAL','NOT FUNCTIONAL','FOR REPAIR','NEW') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'FUNCTIONAL',
+  `remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quantity` int NOT NULL DEFAULT '1',
+  PRIMARY KEY (`equipment_id`),
+  UNIQUE KEY `equipment_id` (`equipment_id`),
+  KEY `fk_equipment_location` (`location_id`),
+  CONSTRAINT `fk_equipment_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_equipment`
+--
+
+LOCK TABLES `inventory_equipment` WRITE;
+/*!40000 ALTER TABLE `inventory_equipment` DISABLE KEYS */;
+INSERT INTO `inventory_equipment` VALUES (1,'Analytical Balance','SHIMADZU','ATY224','D307521295','236-02-2013-03-00-1969',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL - Max. 220g',1),(2,'Analytical Balance','SHIMADZU','ATY224','D307521294','236-02-2013-03-00-1968',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL - Max. 220g',1),(3,'Analytical Balance','OHAUS','PA214','1290330407',NULL,NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL - Max. 210g',1),(4,'Analytical Balance','OHAUS','AR2130','1225070114','236-02-2013-03-00-1967',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL - Max. 210g - Lacks power cord',1),(5,'Atomic Absorption Spectrophotometer (AAS)','SHIMADZU','AA-7000','A309251','164233090001',NULL,1,'2023-09-01','Annual','FUNCTIONAL','FUNCTIONAL',1),(6,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-2','164233020029','051A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Coarse adjustment knob not working',1),(7,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-15','164233020031','052A',1,'2021-11-25','Annual','FOR REPAIR','FOR REPAIR Coarse adjustment knob not working',1),(8,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-12','164233020025','053A',1,'2021-11-25','Annual','FOR REPAIR','FOR REPAIR - Loose coarse adjustment knob',1),(9,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-8','164233020024','054A',1,NULL,'Annual','FOR REPAIR','FOR REPAIR - Coarse adjustment knob not working - HPO not working',1),(10,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-5','236-02-2013-03-00-1995','055A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Can\'t focus',1),(11,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-13','236-02-2013-03-00-1996','056A',1,'2023-11-01','Annual','FUNCTIONAL','FUNCTIONAL - No HPO',1),(12,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-9','164233020022','057A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Fine adjustment knob damage - Only Scanner is the functional objective',1),(13,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-3','236-02-2013-03-00-1990','058A',1,'2023-11-01','Annual','FUNCTIONAL','FUNCTIONAL',1),(14,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-14','236-02-2013-03-00-1993','059A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Loose coarse adjustment knob',1),(15,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-6','164233020026','060A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Damaged knob - Not turning on',1),(16,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-4','236-02-2013-03-00-1987','061A',1,'2021-11-25','Annual','FOR REPAIR','FOR REPAIR - Loose coarse adjustment knob',1),(17,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-11','236-02-2013-03-00-1986','062A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Not turning on - Coarse adjusment knob not working',1),(18,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-7','236-02-2013-03-00-1984','063A',1,'2021-11-25','Annual','FOR REPAIR','FOR REPAIR - Loose coarse adjustment knob',1),(19,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-10','236-02-2013-03-00-1985','064A',1,'2023-11-01','Annual','FOR REPAIR','FOR REPAIR - Loose coarse adjustment knob',1),(20,'Binocular Compound Microscope','AMSCOPE','B490B','1144748-1','236-02-2013-03-00-1998','065A',1,'2023-11-01','Annual','FUNCTIONAL','FUNCTIONAL',1),(21,'Binocular Compound Microscope','SPECTRUM',NULL,'SPEC 003','236-02-2013-03-00-2028','089A',1,NULL,'Annual','FOR REPAIR','FOR REPAIR - Not turning on',1),(22,'Binocular Compound Microscope','SPECTRUM',NULL,'SPEC 001','236-02-2013-03-00-2029','093A',1,NULL,'Annual','FOR REPAIR','FOR REPAIR - Not turning on - HPO not working',1),(23,'Binocular Compound Microscope','SWIFT',NULL,'2322100','2025-05-14-030001-01','SW 006',1,NULL,'Annual','NEW','NEW',1),(24,'Binocular Compound Microscope','SWIFT',NULL,'2321741','2025-05-14-030002-01','SW 007',1,NULL,'Annual','NEW','NEW',1),(25,'Binocular Compound Microscope','SWIFT',NULL,'2322146','2025-05-14-030003-01','SW 008',1,NULL,'Annual','NEW','NEW',1),(26,'Binocular Night Vision','NV400-B',NULL,NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(27,'Binoculars For Wildlife','NIGHTFOX SWIFT',NULL,NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(28,'Blender','OSTERIZER',NULL,NULL,NULL,NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(29,'Blender','IMARFLEX',NULL,NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(30,'Blender','OSTERIZER',NULL,NULL,NULL,NULL,5,NULL,NULL,'FUNCTIONAL','FUNCTIONAL - Ang taklob buslot',1),(31,'Centrifuge','HERAEUS CHRIST',NULL,NULL,'236-02-2013-03-00-1953',NULL,1,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(32,'Centrifuge','PHYSICIAN\'S COMPACT',NULL,NULL,'236-02-2013-03-00-1',NULL,1,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(33,'Centrifuge','BOECO','C-28A',NULL,NULL,NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(34,'Circulating Vacuum Water Pump','SHIMADZU','SHZ-DIII(A)','20210112030006',NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(35,'Circulating Vacuum Water Pump','SHIMADZU','SHZ-DIII(A)','20210112030007',NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(36,'Clinometer','SUUNTO',NULL,'22138276',NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(37,'Compound microscope, XSP',NULL,NULL,NULL,'CAS-MDLE-MSC-001(2/4)',NULL,1,NULL,NULL,'FUNCTIONAL',NULL,1),(38,'Digital Lux Meter','DR. METER','LX1330B',NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(39,'Electric Autoclave','HIRAYAMA','HV-50','30320072816',NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(40,'Electric Distillation Machine','AQUATRON','A4000',NULL,'16423302001',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(41,'Electric Oven','DIGISYSTEM LABORATORY  INSTRUMENTS','B-53',NULL,'221-022013-03-00-0317',NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(42,'Electric Stove','US TRADITION',NULL,NULL,NULL,NULL,5,NULL,'Annual','NOT FUNCTIONAL','NOT FUNCTIONAL - Power cord defective',1),(43,'Electric Water Bath','SHANGHAI JINGKE  INTRUMENTS','JK-WW-600',NULL,NULL,'WB-01',5,NULL,'Annual','FOR REPAIR','FOR REPAIR -Melted socket',1),(44,'Electric Water Bath','SHANGHAI JINGKE  INTRUMENTS','JK-WW-600',NULL,NULL,'WB-02',5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(45,'External Drive','ASUS','SDRW-08D2S-U','N3D0AP074544',NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(46,'Flourescence Microscope','OPTIKA',NULL,NULL,'236-02-2013-03-00-1983',NULL,1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(47,'Flourescence Microscope','OPTIKA',NULL,NULL,NULL,NULL,1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(48,'Fourier Transform Infrared Spectrophotometer (FTIR)','SHIMADZU','IRAffinity-1','A213750',NULL,NULL,1,'2023-09-01','Annual','NOT FUNCTIONAL','NOT FUNCTIONAL - Mirrors are for replacement',1),(49,'Fume Hood','BIOBASE',NULL,NULL,'16423388002',NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(50,'Fume Hood','BIOBASE','FH1200','FH12Z0225',NULL,NULL,3,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(51,'Furnace','VULCAN','3-550','DKW151112V',NULL,NULL,3,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(52,'GPS','GARMIN','ETREX 30x','010-01508-10',NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(53,'GPS','GARMIN','GPSMAP 64x','65J040371',NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(54,'Hot Plate','THERMOSCIENTIFIC','HPA2230M','C1706130631981',NULL,NULL,3,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(55,'Hot Plate','THERMOSCIENTIFIC','HPA2230M','C1706130631983','236-02-2013-03-00-1978',NULL,3,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(56,'Hot Plate','THERMOSCIENTIFIC','HPA2230M','C1706130631985','236-02-2013-03-00-1981',NULL,3,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(57,'Hot Plate','THERMOSCIENTIFIC','HPA2230M','C1706130311272','236-02-2013-03-00-1980',NULL,3,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(58,'Hot Plate','THERMOSCIENTIFIC','HPA2230M','C1706130631984',NULL,NULL,3,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(59,'Hot Plate with Magnetic Stirrer','LMS','HTS-1003','1013-1002',NULL,NULL,3,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(60,'Incident Light Microscope',NULL,NULL,'1606002',NULL,NULL,5,'2023-11-01','Annual','FUNCTIONAL','FUNCTIONAL',1),(61,'Incubator','THERMO SCIENTIFIC',NULL,NULL,'223-02-IT2013-03-00-1500',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(62,'Laboratory Oven','THERMO SCIENTIFIC','OGS60','41568484','221-02-2013-03-00-0316',NULL,3,'2023-01-18','Annual','FUNCTIONAL','FUNCTIONAL',1),(63,'Laboratory Storage Refrigerator','BIOBASE','BXC-AOSTA',NULL,'16423616001',NULL,5,'2023-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(64,'Laboratory Storage Refrigerator','BIOBASE','BXC-AOSTA',NULL,'223-01-2013-03-00-1774',NULL,5,'2024-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(65,'Laboratory Storage Refrigerator','BIOBASE','BXC-AOSTA',NULL,'223-01-2013-03-00-1773',NULL,5,'2025-01-19','Annual','FUNCTIONAL','FUNCTIONAL',1),(66,'Laminar Flow',NULL,NULL,NULL,'16423623001',NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(67,'Laminar Flow',NULL,NULL,NULL,NULL,NULL,4,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(68,'Laser Distance Meter','SNDWAY','SW-TG100',NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(69,'Microtome',NULL,NULL,NULL,'236-02-2013-03-00-1564',NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL - Blade is blunt',1),(70,'Microwave Oven','SHARP','R-240L(S)','80100623',NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(71,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10153','236-02-2013-03-00-2010','066A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(72,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10149','236-02-2013-03-00-2013','067A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - No HPO objective -No stage clip',1),(73,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10147','236-02-2013-03-00-2009','068A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(74,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10157','236-02-2013-03-00-2008','069A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on',1),(75,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10158','236-02-2013-03-00-2011','070A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(76,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10146','236-02-2013-03-00-2012','071A',1,NULL,NULL,'FUNCTIONAL',NULL,1),(77,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10148','236-02-2013-03-00-2006','072A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(78,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10159','236-02-2013-03-00-2005','073A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Loose coarse adjustment knob - Damaged stage clip',1),(79,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10156','236-02-2013-03-00-2007','074A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on',1),(80,'Monocular Compound Microscope','CARTON',NULL,'CARTON 10146','236-02-2013-03-00-2004','075A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL -Defective wire',1),(81,'Monocular Compound Microscope','CE',NULL,'CE 272890','236-02-2013-03-00-2016','076A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Defective wire',1),(82,'Monocular Compound Microscope','CE',NULL,'CE 272874','236-02-2013-03-00-2015','077A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Flickering light when turned on',1),(83,'Monocular Compound Microscope','CE',NULL,'CE 272886','236-02-2013-03-00-2014','078A',1,NULL,'Annual','NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on - Blur HPO imaging',1),(84,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 491','236-02-2013-03-00-2017','079A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(85,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 490','236-02-2013-03-00-2024','080A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(86,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 391','236-02-2013-03-00-2018','081A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL -Can\'t focus on HPO - Stage is loose on HPO',1),(87,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 488','236-02-2013-03-00-2019','082A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(88,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 405','236-02-2013-03-00-2025','083A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on - No eyepiece',1),(89,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 486','236-02-2013-03-00-2021','084A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on',1),(90,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 386','236-02-2013-03-00-2023','085A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(91,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 398','236-02-2013-03-00-2002','086A',1,NULL,'Annual','FOR REPAIR','FOR REPAIR - Can\'t focus',1),(92,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 381','236-02-2013-03-00-2022','087A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL - Not turning on',1),(93,'Monocular Compound Microscope','LW SCIENTIFIC',NULL,'LWS 396','236-02-2013-03-00-2026','088A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL -Emits smoke when turned on',1),(94,'Monocular Compound Microscope','SPECTRUM',NULL,'SPEC 005','236-02-2013-03-00-2031','090A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(95,'Monocular Compound Microscope','SPECTRUM',NULL,'SPEC 002','236-02-2013-03-00-2030','091A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL -Defective wire',1),(96,'Monocular Compound Microscope','SPECTRUM',NULL,'SPEC 004','236-02-2013-03-00-2027','092A',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL -Defective wire',1),(97,'pH meter','HANNA','HI98108',NULL,NULL,NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(98,'Programmable Growth Chamber','WISD','WGC-450','4007331418001',NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(99,'Rotary Evaporator with Waterbath','YAMATO','RE301/BM-500',NULL,NULL,NULL,5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL - No Joint Clips',1),(100,'Shotgun Microphone',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(101,'Sound Level Meter','LUTRON','SL-4010',NULL,'2016-05-0057',NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(102,'Stereomicroscope','AMSCOPE','SM-2T',NULL,'236-02-2013-03-00-2045','101A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(103,'Stereomicroscope','AMSCOPE','SM-2T','1144755-10','236-02-2013-03-00-2044','102A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(104,'Stereomicroscope','AMSCOPE','SM-2T',NULL,'236-02-2013-03-00-2046','103A',1,NULL,'Annual','FUNCTIONAL','No Stage clips and eyepiece',1),(105,'Stereomicroscope','AMSCOPE','SM-2T',NULL,'236-02-2013-03-00-2037','104A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(106,'Stereomicroscope','AMSCOPE','SM-2T','1144755-2','16423389009','105A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(107,'Stereomicroscope','AMSCOPE','SM-2T','1144755-3','236-02-2013-03-00-2039','106A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(108,'Stereomicroscope','AMSCOPE','SM-2T','1144755-4','236-02-2013-03-00-2040','107A',5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(109,'Stereomicroscope','AMSCOPE','SM-2T','1144755-7','236-02-2013-03-00-2041','108A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(110,'Stereomicroscope','AMSCOPE','SM-2T','1144755-4','236-02-2013-03-00-2042','109A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(111,'Stereomicroscope','AMSCOPE','SM-2T','1144755-6','236-02-2013-03-00-2043','110A',1,NULL,'Annual','NOT FUNCTIONAL','NOT FUNCTIONAL',1),(112,'Stereomicroscope','NIKON',NULL,'85784','236-02-2013-03-00-2051','ST NIKON 101',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(113,'Stereomicroscope','MOTIC','SMZ-143 SERIES',NULL,'236-02-2013-03-00-2050','SMZ 143',1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(114,'Stereomicroscope','OPTECH',NULL,'HG-169465',NULL,NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(115,'Stereomicroscope','LW SCIENTIFIC',NULL,'LWS 308784','236-02-2013-03-00-2048',NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL Lacking one eyepiece',1),(116,'Stereomicroscope','LW SCIENTIFIC',NULL,'LWS 308785','236-02-2013-03-00-2047',NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(117,'Stereomicroscope','OPTECH',NULL,'HG-169460',NULL,NULL,1,NULL,NULL,'NOT FUNCTIONAL','NOT FUNCTIONAL',1),(118,'Stereomicroscope','AMSCOPE',NULL,NULL,'PAR-05-IGF-201910-0143',NULL,1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(119,'Trail Camera','SYNDESMOS','DH-2','X0031YX8RP',NULL,NULL,1,NULL,NULL,'FUNCTIONAL','FUNCTIONAL',1),(120,'Trinocular Compound Microscope','AMSCOPE','T680A','6013037775',NULL,NULL,1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL - Lacking power cord - Lacking one eyepiece',1),(121,'Trinocular Compound Microscope','AMSCOPE','T680A','6013037775',NULL,NULL,1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(122,'Trinocular Compound Microscope','OPTIKA','B-350','360845','164233020025','094A',1,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(123,'Trinocular Compound Microscope','OPTIKA','B-350','371688','164233020026','095A',5,NULL,'Annual','FUNCTIONAL','FUNCTIONAL',1),(124,'UV Spectriphotometer','SHIMADZU','UV-1800','A11635100434','164233090003',NULL,5,'2023-06-01','Annual','FUNCTIONAL','FUNCTIONAL',1);
+/*!40000 ALTER TABLE `inventory_equipment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_glassware`
+--
+
+DROP TABLE IF EXISTS `inventory_glassware`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_glassware` (
+  `glassware_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `glassware` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` bigint unsigned NOT NULL,
+  `remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quantity` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`glassware_id`),
+  UNIQUE KEY `glassware_id` (`glassware_id`),
+  KEY `fk_glassware_location` (`location_id`),
+  CONSTRAINT `fk_glassware_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_glassware`
+--
+
+LOCK TABLES `inventory_glassware` WRITE;
+/*!40000 ALTER TABLE `inventory_glassware` DISABLE KEYS */;
+INSERT INTO `inventory_glassware` VALUES (1,'Absorber tube glass',NULL,2,NULL,6),(2,'Amber bottle','100 mL, Orange cap',2,'Unused',0),(3,'Amber bottle','250 mL, Orange cap',2,'Unused',2),(4,'Beaker','50 ml',2,'18 Pyrex; 4 Bomex; 1 Boro3.3; 1 GG-17; 1 Sterglass',25),(5,'Beaker','100 ml',2,'Pyrex 18; Bomex 12; 7 Uni-rex ; 2 Schott ; GG17- 9 ; 4 Kimax, Veegee 1; Boro 3.3 1',56),(6,'Beaker','150 ml',2,'26 Pyrex ; 1 GG 17; 1 Boro 3.3 ; 1 Borosilicate',29),(7,'Beaker','250 ml',2,'14 Pyrex; 5 Unirex; 2 Sterglass; 6 GG-17; 4 Brandless',32),(8,'Beaker','400 ml',2,'30 Schott; 9 Bomex; 5 Pyrex; 4 Brandless',40),(9,'Beaker','500 ml',2,'3 Pyrex; 1 Borosil; 1 Bomex; 1 GG-17; 1Sterglass',10),(10,'Beaker','600 ml',2,'5 Pyrex',0),(11,'Beaker','1000 ml',2,'13 Pyrex; 1 GG-17; 1 Sterglass; 1 Brandless',22),(12,'Beaker','4000 ml',2,'3 Pyrex; 6 Kimax',10),(13,'Beaker','5000 ml',2,'2 Unirex',2),(14,'Boiling Flask','100 ml , Flat',2,'2 Duran',2),(15,'Boiling Flask','125 ml , Flat',2,'26 Kimax;  4 Pyrex',30),(16,'Boiling Flask','250 ml, Flat',2,'2 Bomex; 4 Kimax; 6 Pyrex',12),(17,'Boiling Flask','300 ml, Round',2,NULL,1),(18,'Boiling Flask','500 ml, Flat',2,'13 Kimax; 4 Pyrex',17),(19,'Boiling Flask','500 ml, Round',2,'3 Kimax, 1 Pyrex',3),(20,'Boiling Flask','1L, Flat',2,'1 Pyrex; 1 Bomex; 8 Kimax',9),(21,'Boiling Flask','1L, Round',2,'4 Duran; 1 Kimax',5),(22,'Bunchner Funnel',NULL,2,NULL,12),(23,'Burette','50 mL',2,'All functioning',22),(24,'Condenser',NULL,2,NULL,27),(25,'Cuvette','10 mm, with PTFE Lid, Matched pair',1,'Newly purchased',2),(26,'Distilling Flask','500 ml',2,NULL,11),(27,'Distilling Flask','250 ml',2,'8 Pyrex; 16 Kimax',21),(28,'Erlenmeyer flask','25ml',2,'2 Pyrex; 3 Kimax',5),(29,'Erlenmeyer flask','50 ml',2,'1 Kimax',1),(30,'Erlenmeyer flask','125 mL',2,'4 Pyrex; 2 Kimax',6),(31,'Erlenmeyer flask','150 mL',2,'6 Bomex; 2 GG-17',8),(32,'Erlenmeyer flask','250 mL',2,'No measurements',45),(33,'Erlenmeyer flask','250 mL',2,'18 Pyrex; 5 Borosil; 5 Unirex; 4 Cordial;  1 Bomex; 2 GG-17;  Brandless',34),(34,'Erlenmeyer flask','500 mL',2,'19 Pyrex; 2 Cordial; 3 Bomex; 4 GG-17; 2 Unirex; 1 Sterglass',33),(35,'Erlenmeyer flask','500 mL',2,'No measurement',1),(36,'Erlenmeyer flask','1000 mL',2,'4 Pyrex; 2 Isolab; 1 Cordial; 1 Sterglass',7),(37,'Funnel','50-60mm',2,NULL,12),(38,'Funnel','70mm',2,NULL,15),(39,'Funnel','90 mm',2,NULL,8),(40,'Funnel','100 mm',2,NULL,2),(41,'Funnel','1000 mm',2,NULL,6),(42,'Graduated cylinder','10 mL',2,'18 Unirex; 7 Citoglass; 7 Pyrex; 6 Sterglass; 9 Brandless',47),(43,'Graduated cylinder','25 mL',2,'5 Pyrex; 29 Unirex',34),(44,'Graduated cylinder','50 mL',2,'2 Pyrex; 2 Sterglass; 1 Citoglass; 1 Borosilicate; 4 Brandless',11),(45,'Graduated cylinder','100 mL',2,'22 Citoglass; 1 Borosil; 1 DIN; 7 Pyrex;  6 Brandless; 3 Sterglass; 2 Partners',45),(46,'Graduated cylinder','250 mL',2,'3 Unirex; 1 Borosil',4),(47,'Graduated cylinder','500 mL',2,'2 Brandless',2),(48,'Graduated cylinder','1000 mL',2,'2 GG-17; 1 TEKK; 3 Brandless',7),(49,'Petri dish',NULL,2,'Pair',115),(50,'Petri dish',NULL,2,'Pair',93),(51,'Petri dish',NULL,2,NULL,10),(52,'Pipette','1 mL',2,'7 Pyrex; 2 Borosilicate; 8 Brandless',16),(53,'Pipette','2 mL',2,'1 Pyrex, 3 Borosilicate; 4 Brandless',8),(54,'Pipette','5 mL',2,'10 Pyrex; 4 DIN; 25 Brandless',38),(55,'Pipette','10 mL',2,'47 Pyrex; 6 Brandless',53),(56,'Pipette','25 mL',2,'6 Pyrex; 4 Borosilicate;24 Bomex; 2 DIN; 23 GG-17',52),(57,'BOD bottle',NULL,2,'Unused, inside brown box',21),(58,'Reagent bottle','100 mL, Blue Cap',2,'Unused',2),(59,'Reagent bottle','100 mL, Orange Cap',2,'Unused',0),(60,'Reagent bottle','500 mL, Orange Cap',2,'Unused',0),(61,'Receptacle',NULL,2,NULL,14),(62,'Retort',NULL,2,'Inside its box',3),(63,'Separatory Funnel','60 ml',2,NULL,2),(64,'Separatory Funnel','125 ml',2,'Round Short - 5; Round Long - 3',18),(65,'Separatory Funnel','250 ml',2,'Elongated Short - 2; Elongated Long - 1; Round Short - 1',4),(66,'Separatory Funnel','500 ml',2,'Elongated - 9; Round - 6',15),(67,'Sohxlet',NULL,2,'Inside its box',3),(68,'Stirring rod','Long',2,'Not Broken',30),(69,'Stirring rod','Small',2,'Slightly broken but still usable for stirring chemicals (small quanitity)',65),(70,'Suction flask','500 mL',2,NULL,1),(71,'Suction flask','1000 mL',2,'3 Kimax, 1 Pyrex',4),(72,'Test Tube','5 ml',2,NULL,175),(73,'Test Tube','8 ml',2,NULL,209),(74,'Test Tube','10 ml',2,NULL,85),(75,'Test Tube','15 ml',2,NULL,13),(76,'Test Tube','20 ml',2,NULL,50),(77,'Test Tube','25 ml',2,NULL,220),(78,'Test Tube','50 ml',2,NULL,16),(79,'Test Tube','75 ml',2,NULL,24),(80,'Test tube w/ screw cap','8 ml',2,NULL,57),(81,'Test tube w/ screw cap','15 ml',2,NULL,8),(82,'Test tube w/ screw cap','30 ml',2,NULL,21),(83,'Test tube w/ screw cap','34 ml',2,NULL,143),(84,'Test tube w/ screw cap','75 ml',2,NULL,0),(85,'Thistle tube',NULL,2,NULL,64),(86,'Volumetric Flask','10 ml',2,NULL,6),(87,'Volumetric Flask','50 ml',2,NULL,7),(88,'Volumetric Flask','100 ml',2,'9 Citoglass; 6 Pyrex, 1 MBL, 1 Boro 3.3',16),(89,'Volumetric Flask','250 ml',2,'3 YZ; 3 01TX; 6 Sterlglass;  23 Bomex;  1 Pyrex; 1 Borosil; 1 MBL',35),(90,'Volumetric Flask','500 ml',2,'10 YZ; 8 II; 1 MC; 13 Bomex; 1 Kimax',32),(91,'Volumetric Flask','1000 ml',2,'1 Borosil; 3 Brandless; 5 Kimax; 13 Bomex',20),(92,'Volumetric Pipette','1ml',2,NULL,2),(93,'Volumetric Pipette','2ml',2,NULL,6),(94,'Volumetric Pipette','5 ml',2,NULL,12),(95,'Volumetric Pipette','10 ml',2,NULL,10),(96,'Volumetric Pipette','20 ml',2,NULL,6),(97,'Watch glass','Small',2,'30 mm-80 mm',42),(98,'Watch glass','Medium',2,'90 mm - 100 mm',81),(99,'Watch glass','Large',2,'100 mm - 120 mm',15);
+/*!40000 ALTER TABLE `inventory_glassware` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_glassware_brand`
+--
+
+DROP TABLE IF EXISTS `inventory_glassware_brand`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_glassware_brand` (
+  `glassware_id` bigint unsigned NOT NULL,
+  `brand_id` bigint unsigned NOT NULL,
+  `quantity` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`glassware_id`,`brand_id`),
+  KEY `fk_glassware_brand_brand` (`brand_id`),
+  CONSTRAINT `fk_glassware_brand_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`brand_id`),
+  CONSTRAINT `fk_glassware_brand_glassware` FOREIGN KEY (`glassware_id`) REFERENCES `inventory_glassware` (`glassware_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_glassware_brand`
+--
+
+LOCK TABLES `inventory_glassware_brand` WRITE;
+/*!40000 ALTER TABLE `inventory_glassware_brand` DISABLE KEYS */;
+INSERT INTO `inventory_glassware_brand` VALUES (2,26,0),(3,26,0),(4,3,0),(4,4,0),(4,26,0),(5,3,0),(5,16,0),(5,19,0),(5,26,0),(5,29,0),(5,35,0),(6,6,0),(6,16,0),(6,26,0),(6,31,0),(7,7,0),(7,16,0),(7,26,0),(7,30,0),(7,37,0),(8,3,0),(8,7,0),(8,26,0),(8,29,0),(9,3,0),(9,5,0),(9,16,0),(9,26,0),(9,30,0),(10,26,0),(11,7,0),(11,16,0),(11,26,0),(11,30,0),(12,19,0),(12,26,0),(13,37,0),(14,13,0),(15,13,0),(15,19,0),(15,26,0),(16,3,0),(16,19,0),(16,26,0),(17,38,0),(18,19,0),(18,26,0),(19,19,0),(19,26,0),(20,3,0),(20,19,0),(20,26,0),(21,13,0),(21,19,0),(25,7,0),(26,7,0),(27,19,0),(27,26,0),(28,19,0),(28,26,0),(29,19,0),(30,19,0),(30,26,0),(31,3,0),(31,16,0),(33,3,0),(33,5,0),(33,7,0),(33,9,0),(33,16,0),(33,26,0),(33,37,0),(34,3,0),(34,9,0),(34,16,0),(34,26,0),(34,30,0),(34,37,0),(36,9,0),(36,18,0),(36,26,0),(36,30,0),(37,7,0),(38,7,0),(39,7,0),(40,7,0),(41,7,0),(42,7,0),(42,8,0),(42,26,0),(42,30,0),(42,37,0),(43,26,0),(43,37,0),(44,6,0),(44,7,0),(44,8,0),(44,26,0),(44,30,0),(45,5,0),(45,7,0),(45,8,0),(45,11,0),(45,25,0),(45,26,0),(45,30,0),(46,5,0),(46,37,0),(47,7,0),(48,7,0),(48,16,0),(48,32,0),(49,26,0),(50,7,0),(52,6,0),(52,26,0),(53,6,0),(53,7,0),(53,26,0),(54,7,0),(54,11,0),(54,26,0),(55,7,0),(55,26,0),(56,3,0),(56,6,0),(56,11,0),(56,16,0),(56,26,0),(58,26,0),(59,26,0),(60,26,0),(61,19,0),(62,26,0),(63,7,0),(64,7,0),(65,7,0),(66,7,0),(70,19,0),(71,19,0),(71,26,0),(86,19,0),(87,26,0),(88,4,0),(88,8,0),(88,21,0),(88,26,0),(89,1,0),(89,3,0),(89,5,0),(89,21,0),(89,26,0),(89,31,0),(89,40,0),(90,3,0),(90,17,0),(90,19,0),(90,22,0),(90,40,0),(91,3,0),(91,5,0),(91,7,0),(91,19,0);
+/*!40000 ALTER TABLE `inventory_glassware_brand` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_items`
+--
+
+DROP TABLE IF EXISTS `inventory_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_items` (
+  `item_id` int NOT NULL AUTO_INCREMENT,
+  `category` enum('GLASSWARE','EQUIPMENT','APPARATUS','SUPPLY','CHEMICAL') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `amount` decimal(65,30) NOT NULL DEFAULT '0.000000000000000000000000000000',
+  `unit` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` datetime(3) NOT NULL,
+  PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_items`
+--
+
+LOCK TABLES `inventory_items` WRITE;
+/*!40000 ALTER TABLE `inventory_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inventory_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_supplies`
+--
+
+DROP TABLE IF EXISTS `inventory_supplies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_supplies` (
+  `supplies_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `supplies_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `brand_id` bigint unsigned DEFAULT NULL,
+  `location_id` bigint unsigned NOT NULL,
+  `quantity` int NOT NULL DEFAULT '0',
+  `quantity_unit` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`supplies_id`),
+  UNIQUE KEY `supplies_id` (`supplies_id`),
+  KEY `fk_supplies_brand` (`brand_id`),
+  KEY `fk_supplies_location` (`location_id`),
+  CONSTRAINT `fk_supplies_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`brand_id`),
+  CONSTRAINT `fk_supplies_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_supplies`
+--
+
+LOCK TABLES `inventory_supplies` WRITE;
+/*!40000 ALTER TABLE `inventory_supplies` DISABLE KEYS */;
+INSERT INTO `inventory_supplies` VALUES (1,'Acid Gas Cartridge',NULL,1,5,'packs'),(2,'Blue Litmus paper',NULL,2,13,'Boxes, 1 tube'),(3,'Capillary tube',NULL,2,3,'tubes'),(4,'Copper Strips 6x1/4 in',NULL,1,2,NULL),(5,'Depression Slides',NULL,1,18,'-D, 31-S'),(6,'Falcon tubes (50mL)',NULL,1,1,'pack'),(7,'Filter Paper (125mm)',39,1,4,'boxes'),(8,'Filter Paper (47mm)',39,1,2,'boxes'),(9,'Filter Paper (70mm)',33,1,25,'pcs'),(10,'Gauze Pad',27,1,1,'box'),(11,'Glass Slides',NULL,1,10,'boxes'),(12,'Microcope Lens Wipes',20,1,8,'boxes'),(13,'Microfuge Tubes (Rnase -free)',NULL,1,1,'Pck'),(14,'Microtome Blade',14,1,1,'box (5 unused blades)'),(15,'pH strips',NULL,2,4,'boxes'),(16,'Pipette tips (10µl)',NULL,1,1,'box & 1 pack'),(17,'Pipette tips (1000µl)',NULL,1,4,'boxes & 3 1/2 packs'),(18,'Pipette tips (200µl)',NULL,1,11,'boxes & 1/2 pack'),(19,'Red Litmus paper',NULL,2,9,'boxes & 4 tubes'),(20,'Seal-R-Film',NULL,1,1,'box (opened)'),(21,'Spill Kit',NULL,1,1,'set'),(22,'Surgical Blade for Scalpel no. 3',27,1,9,'pieces'),(23,'Weighing Dishes',NULL,1,1,'pack'),(24,'Wooden Applicator',23,1,4,'boxes'),(25,'Wooden Tongue Applicator',36,1,1,'box'),(26,'Zinc Metal Strips',NULL,1,2,NULL);
+/*!40000 ALTER TABLE `inventory_supplies` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `locations`
+--
+
+DROP TABLE IF EXISTS `locations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `locations` (
+  `location_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `location_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`location_id`),
+  UNIQUE KEY `location_id` (`location_id`),
+  UNIQUE KEY `location_name` (`location_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `locations`
+--
+
+LOCK TABLES `locations` WRITE;
+/*!40000 ALTER TABLE `locations` DISABLE KEYS */;
+INSERT INTO `locations` VALUES (1,'Biology Stockroom (E-215)'),(2,'Chem. & Physics Stockroom'),(3,'Chemical Laboratory (E-309)'),(4,'E-213'),(5,'Instrument Laboratory (E-211)');
+/*!40000 ALTER TABLE `locations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reservation_items`
+--
+
+DROP TABLE IF EXISTS `reservation_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reservation_items` (
+  `res_item_id` int NOT NULL AUTO_INCREMENT,
+  `reservation_id` int NOT NULL,
+  `item_id` int NOT NULL,
+  `quantity` int NOT NULL DEFAULT '1',
+  PRIMARY KEY (`res_item_id`),
+  KEY `reservation_items_reservation_id_fkey` (`reservation_id`),
+  KEY `reservation_items_item_id_fkey` (`item_id`),
+  CONSTRAINT `reservation_items_item_id_fkey` FOREIGN KEY (`item_id`) REFERENCES `inventory_items` (`item_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `reservation_items_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reservation_items`
+--
+
+LOCK TABLES `reservation_items` WRITE;
+/*!40000 ALTER TABLE `reservation_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `reservation_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reservation_members`
+--
+
+DROP TABLE IF EXISTS `reservation_members`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reservation_members` (
+  `member_id` int NOT NULL AUTO_INCREMENT,
+  `reservation_id` int NOT NULL,
+  `student_id` int NOT NULL,
+  PRIMARY KEY (`member_id`),
+  UNIQUE KEY `reservation_members_reservation_id_student_id_key` (`reservation_id`,`student_id`),
+  KEY `reservation_members_student_id_fkey` (`student_id`),
+  CONSTRAINT `reservation_members_reservation_id_fkey` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `reservation_members_student_id_fkey` FOREIGN KEY (`student_id`) REFERENCES `users` (`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reservation_members`
+--
+
+LOCK TABLES `reservation_members` WRITE;
+/*!40000 ALTER TABLE `reservation_members` DISABLE KEYS */;
+/*!40000 ALTER TABLE `reservation_members` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reservations`
+--
+
+DROP TABLE IF EXISTS `reservations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reservations` (
+  `reservation_id` int NOT NULL AUTO_INCREMENT,
+  `group_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reserving_student` int NOT NULL,
+  `professor_id` int DEFAULT NULL,
+  `custodian_id` int DEFAULT NULL,
+  `date_requested` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `date_needed` datetime(3) NOT NULL,
+  `time_start` datetime(3) NOT NULL,
+  `time_end` datetime(3) NOT NULL,
+  `activity_title` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('TO_REVIEW','ALLOWED','REJECTED','CONDITIONAL') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'TO_REVIEW',
+  `conditions_note` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rejection_reason` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` datetime(3) NOT NULL,
+  PRIMARY KEY (`reservation_id`),
+  KEY `reservations_reserving_student_fkey` (`reserving_student`),
+  CONSTRAINT `reservations_reserving_student_fkey` FOREIGN KEY (`reserving_student`) REFERENCES `users` (`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reservations`
+--
+
+LOCK TABLES `reservations` WRITE;
+/*!40000 ALTER TABLE `reservations` DISABLE KEYS */;
+INSERT INTO `reservations` VALUES (1,'12',1,NULL,NULL,'2026-05-11 20:42:43.251','1212-12-12 00:00:00.000','1212-12-13 04:08:08.000','1212-12-13 04:18:08.000','12','TO_REVIEW','12',NULL,'2026-05-11 20:42:43.251','2026-05-11 20:42:43.251'),(2,'12',1,NULL,NULL,'2026-05-11 20:43:08.263','0002-11-12 00:00:00.000','0002-11-13 04:08:08.000','0002-11-13 04:18:08.000','12','TO_REVIEW','12',NULL,'2026-05-11 20:43:08.263','2026-05-11 20:43:08.263'),(5,'12',1,NULL,NULL,'2026-05-11 22:31:07.829','1212-12-12 00:00:00.000','1212-12-13 04:08:08.000','1212-12-13 04:18:08.000','12','TO_REVIEW','12',NULL,'2026-05-11 22:31:07.829','2026-05-11 22:31:07.829'),(6,'12',1,NULL,NULL,'2026-05-12 11:59:09.411','1212-12-12 00:00:00.000','1212-12-13 04:08:08.000','1212-12-13 04:18:08.000','12','TO_REVIEW','12',NULL,'2026-05-12 11:59:09.411','2026-05-12 11:59:09.411'),(7,'12',2,NULL,NULL,'2026-05-13 18:26:15.535','1212-12-12 00:00:00.000','1212-12-13 04:08:08.000','1212-12-13 04:18:08.000','12','TO_REVIEW','12',NULL,'2026-05-13 18:26:15.535','2026-05-13 18:26:15.535');
+/*!40000 ALTER TABLE `reservations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `student_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `middle_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `college` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_type` enum('STUDENT','LABORATORY_STAFF','LABORATORY_CHEMIST','ADMIN') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'STUDENT',
+  `year_level` int DEFAULT NULL,
+  `section` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `users_username_key` (`username`),
+  UNIQUE KEY `users_email_key` (`email`),
+  UNIQUE KEY `users_student_number_key` (`student_number`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,NULL,'admin','System',NULL,'Administrator','admin@smartlab.com','$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',NULL,NULL,'ADMIN',NULL,NULL,1,'2026-05-11 15:48:17.659','2026-05-11 07:48:17'),(2,'20230001','student','John',NULL,'Doe','student@smartlab.edu','$2a$10$xtrJQXPl1K5l2MHIspRuAOfN1MLTL5iTDoFdZXW5iBT4WqAUKFYNu',NULL,'CAS','STUDENT',2,NULL,1,'2026-05-13 18:24:38.633','2026-05-13 10:24:39'),(3,NULL,'staff','Maria',NULL,'Santos','staff@smartlab.edu','$2a$10$AiesvaBfe/RrOYMLVUrxY.R4xQKkZ7H9pDfxnlTjRyUYc0ZoB/zVC',NULL,'CAS','LABORATORY_STAFF',NULL,NULL,1,'2026-05-13 18:24:38.714','2026-05-13 10:24:39');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-05-14  2:31:26
