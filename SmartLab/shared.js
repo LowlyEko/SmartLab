@@ -108,8 +108,6 @@ if (msgToggle && msgPanel) {
     e.stopPropagation();
     msgPanel.classList.toggle('open');
     document.getElementById('profilePanel')?.classList.remove('open');
-
-    // Toggle gold color on the icon
     msgIcon?.classList.toggle('active', msgPanel.classList.contains('open'));
   });
 
@@ -159,143 +157,96 @@ const contactConversations = {
 
 // =====================================================
 // POPUP QUEUE MANAGER
-// Max 2 visible at a time.
-// popupQueue : [id, ...] — index 0 = leftmost (newest), last = rightmost (oldest)
-// stackQueue : [id, ...] — index 0 = oldest (bottom of dock), last = newest (top of dock)
-// Circular rotation: opening/restoring a chat pushes the rightmost visible to the TOP of the stack.
 // =====================================================
 const MAX_POPUPS  = 2;
 const POPUP_WIDTH = 337;
 const POPUP_GAP   = 10;
 const BASE_RIGHT  = 80;
 
-let popupQueue = [];   // currently visible popups, left-to-right = newest-to-oldest
-let stackQueue = [];   // minimized/stacked popups, index 0 = bottom of dock, last = top of dock
+let popupQueue = [];
+let stackQueue = [];
 
-// Map of popupId -> { name, initials, avatarColor, isCompose }
 const minimizedChats = new Map();
 
-// ── Reposition all visible popups ──────────────────────────────────────────
+// Avatar color map — brand green palette
+const AVATAR_COLORS = {
+  'Maria Cruz':          '#205e38',
+  'Rodel Lim':           '#854d0e',
+  'Ana Jimenez':         '#991b1b',
+  'Karl Buenaventura':   '#205e38',
+  'CAS Lab Team':        '#1e40af',
+  'Reservation Alerts':  '#854d0e',
+  'Science Department':  '#991b1b',
+};
+
 function reindexPopups() {
   popupQueue.forEach((id, index) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.style.right = (BASE_RIGHT + index * (POPUP_WIDTH + POPUP_GAP)) + 'px';
-    }
+    if (el) el.style.right = (BASE_RIGHT + index * (POPUP_WIDTH + POPUP_GAP)) + 'px';
   });
   renderMinimizedDock();
 }
 
-// ── Push the rightmost visible popup onto the top of the stack ─────────────
 function evictOldestToStack() {
   if (popupQueue.length === 0) return;
   const evictId = popupQueue[popupQueue.length - 1];
   const el      = document.getElementById(evictId);
-  if (el) {
-    el.classList.remove('open');
-    el.style.display = 'none';
-  }
+  if (el) { el.classList.remove('open'); el.style.display = 'none'; }
   popupQueue.splice(popupQueue.length - 1, 1);
-  stackQueue.unshift(evictId); // goes to BOTTOM of dock (index 0)
+  stackQueue.unshift(evictId);
 }
 
-// ── If a slot is free and stack has chats, pull the top of stack into view ──
-// ── If a slot is free and stack has chats, pull the top of stack into view ──
 function fillFromStack() {
   if (popupQueue.length >= MAX_POPUPS) return;
   if (stackQueue.length === 0) return;
-
   const nextId = stackQueue[stackQueue.length - 1];
-
-  // Safety: skip if somehow already visible
-  if (popupQueue.includes(nextId)) {
-    stackQueue.pop();
-    fillFromStack();
-    return;
-  }
-
+  if (popupQueue.includes(nextId)) { stackQueue.pop(); fillFromStack(); return; }
   stackQueue.pop();
   const el = document.getElementById(nextId);
-  if (!el) { fillFromStack(); return; } // orphaned, skip
-
+  if (!el) { fillFromStack(); return; }
   popupQueue.push(nextId);
-  el.classList.add('open');
-  el.style.display = '';
+  el.classList.add('open'); el.style.display = '';
   reindexPopups();
 }
 
-// ── Register a popup as visible (called on open or restore from stack) ──────
 function registerPopup(id) {
-  // Remove from stack if it was stacked
   const si = stackQueue.indexOf(id);
   if (si !== -1) stackQueue.splice(si, 1);
-
-  // Already visible — promote to front (leftmost)
   const qi = popupQueue.indexOf(id);
-  if (qi !== -1) {
-    popupQueue.splice(qi, 1);
-    popupQueue.unshift(id);
-    reindexPopups();
-    return;
-  }
-
-  // Need to make room if at capacity — circular rotation
-  if (popupQueue.length >= MAX_POPUPS) {
-    evictOldestToStack();
-  }
-
-  popupQueue.unshift(id); // newest goes to front (leftmost position)
+  if (qi !== -1) { popupQueue.splice(qi, 1); popupQueue.unshift(id); reindexPopups(); return; }
+  if (popupQueue.length >= MAX_POPUPS) evictOldestToStack();
+  popupQueue.unshift(id);
   reindexPopups();
 }
 
-// ── Unregister without stacking (used by close) ────────────────────────────
 function unregisterPopup(id) {
   const qi = popupQueue.indexOf(id);
-  if (qi !== -1) {
-    popupQueue.splice(qi, 1);
-    reindexPopups();
-  }
+  if (qi !== -1) { popupQueue.splice(qi, 1); reindexPopups(); }
   const si = stackQueue.indexOf(id);
-  if (si !== -1) {
-    stackQueue.splice(si, 1);
-    renderMinimizedDock();
-  }
+  if (si !== -1) { stackQueue.splice(si, 1); renderMinimizedDock(); }
 }
 
-// ── Permanently remove a popup — auto-fill vacant slot from stack ───────────
 function forceClosePopup(id) {
   unregisterPopup(id);
   const el = document.getElementById(id);
   if (el) el.remove();
   minimizedChats.delete(id);
-  fillFromStack(); // fill the vacant slot if stack has chats
+  fillFromStack();
   renderMinimizedDock();
 }
 
-// ── Minimize: move from visible to top of stack, then auto-fill ────────────
-// ── Minimize: move from visible to BOTTOM of dock, NO auto-fill ────────────
 function minimizePopup(id) {
-  // Guard: already minimized
   if (stackQueue.includes(id)) return;
-
-  // Remove from visible queue
   const qi = popupQueue.indexOf(id);
   if (qi !== -1) popupQueue.splice(qi, 1);
-
-  // Hide the element
   const el = document.getElementById(id);
   if (el) { el.classList.remove('open'); el.style.display = 'none'; }
-
-  // Push to BOTTOM of dock (unshift = index 0)
   stackQueue.unshift(id);
-
-  // Reposition remaining visible popups and re-render dock
   reindexPopups();
 }
 
-// ── Restore from stack: circular rotation ──────────────────────────────────
 function restoreFromStack(id) {
-  registerPopup(id); // this handles eviction + positioning
+  registerPopup(id);
   const el = document.getElementById(id);
   if (el) { el.classList.add('open'); el.style.display = ''; }
   renderMinimizedDock();
@@ -304,9 +255,6 @@ function restoreFromStack(id) {
 
 // =====================================================
 // MINIMIZED CHAT DOCK
-// Vertical column on the right edge.
-// stackQueue[0] = bottom of dock, stackQueue[last] = top of dock.
-// flex-direction: column-reverse so appending in order gives bottom-to-top layout.
 // =====================================================
 function getMinimizedDock() {
   let dock = document.getElementById('minimizedChatDock');
@@ -321,7 +269,6 @@ function getMinimizedDock() {
 function renderMinimizedDock() {
   const dock = getMinimizedDock();
   dock.innerHTML = '';
-
   if (stackQueue.length === 0) return;
 
   stackQueue.forEach((popupId) => {
@@ -332,24 +279,17 @@ function renderMinimizedDock() {
     item.className = 'minimized-dock-item';
     item.style.cssText = `
       position: relative;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 48px; height: 48px; border-radius: 50%;
       background: ${data.avatarColor || '#205e38'};
       color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
       font-family: "Poppins", sans-serif;
-      cursor: pointer;
-      pointer-events: all;
+      cursor: pointer; pointer-events: all;
       box-shadow: 0 2px 8px rgba(0,0,0,0.28);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
-      user-select: none;
-      overflow: visible;
-      border: 2px solid rgba(255,255,255,0.15);
+      user-select: none; overflow: visible;
+      border: 2px solid rgba(255,255,255,0.18);
       animation: dock-item-in 0.2s ease both;
     `;
 
@@ -359,39 +299,22 @@ function renderMinimizedDock() {
       item.textContent = data.initials;
     }
 
-    // ── Close button (shown on hover) ──────────────────────────────────────
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '&#10005;';
     closeBtn.title = 'Close';
     closeBtn.style.cssText = `
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #ffffff;
-      color: #080809;
-      border: 2px solid #fff;
-      font-size: 9px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transform: scale(0.7);
+      position: absolute; top: -5px; right: -5px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #ffffff; color: #080809;
+      border: 2px solid #fff; font-size: 9px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; transform: scale(0.7);
       transition: opacity 0.15s ease, transform 0.15s ease;
-      z-index: 10;
-      pointer-events: all;
-      padding: 0;
-      font-family: "Poppins", sans-serif;
-      font-weight: 700;
+      z-index: 10; pointer-events: all; padding: 0;
+      font-family: "Poppins", sans-serif; font-weight: 700;
     `;
-
     item.appendChild(closeBtn);
 
-    // Show/hide close button on hover
     item.addEventListener('mouseenter', () => {
       item.style.transform = 'scale(1.1)';
       item.style.boxShadow = '0 4px 16px rgba(0,0,0,0.38)';
@@ -405,34 +328,22 @@ function renderMinimizedDock() {
       closeBtn.style.transform = 'scale(0.7)';
     });
 
-    // Close button click — permanently remove
     closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // prevent restoreFromStack
+      e.stopPropagation();
       forceClosePopup(popupId);
     });
 
-    // Avatar click → restore
     item.addEventListener('click', () => restoreFromStack(popupId));
 
-    // Tooltip label
     const label = document.createElement('div');
     label.style.cssText = `
-      position: absolute;
-      right: 56px;
-      top: 50%;
+      position: absolute; right: 56px; top: 50%;
       transform: translateY(-50%);
-      background: rgba(0,0,0,0.75);
-      color: #fff;
-      font-size: 11px;
-      font-family: "Poppins", sans-serif;
-      font-weight: 500;
-      padding: 4px 9px;
-      border-radius: 6px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      z-index: 9999;
+      background: rgba(0,0,0,0.75); color: #fff;
+      font-size: 11px; font-family: "Poppins", sans-serif;
+      font-weight: 500; padding: 4px 9px; border-radius: 6px;
+      white-space: nowrap; pointer-events: none; opacity: 0;
+      transition: opacity 0.15s ease; z-index: 9999;
     `;
     label.textContent = data.name;
     item.appendChild(label);
@@ -445,7 +356,6 @@ function renderMinimizedDock() {
 
 // ===== Open chat popup from message panel item =====
 function openChatFromItem(name, initials) {
-  // Mark message as read
   const mpItem = document.querySelector(`.mp-item[data-name="${name}"]`);
   if (mpItem) {
     mpItem.classList.remove('unread');
@@ -460,19 +370,9 @@ function openChatFromItem(name, initials) {
 
   msgPanel?.classList.remove('open');
 
-  const avatarColors = {
-    'Maria Cruz':          '#205e38',
-    'Rodel Lim':           '#854d0e',
-    'Ana Jimenez':         '#991b1b',
-    'Karl Buenaventura':   '#205e38',
-    'CAS Lab Team':        '#1e40af',
-    'Reservation Alerts':  '#854d0e',
-    'Science Department':  '#991b1b',
-  };
-  const avatarColor = avatarColors[name] || '#205e38';
+  const avatarColor = AVATAR_COLORS[name] || '#205e38';
   const popupId     = `chatPopup_${name.replace(/\s+/g, '_')}`;
 
-  // Already exists — restore or promote
   if (document.getElementById(popupId)) {
     if (stackQueue.includes(popupId)) {
       restoreFromStack(popupId);
@@ -483,7 +383,6 @@ function openChatFromItem(name, initials) {
     return;
   }
 
-  // ── Build new popup ──────────────────────────────────────────────────────
   const conversations = contactConversations[name] || [{ from: 'them', text: 'Hello!' }];
 
   const popup = document.createElement('div');
@@ -521,14 +420,10 @@ function openChatFromItem(name, initials) {
   `;
 
   document.body.appendChild(popup);
-
-  // Register in minimized map
   minimizedChats.set(popupId, { name, initials, avatarColor });
-
   registerPopup(popupId);
   popup.classList.add('open');
 
-  // ── Populate conversation history ────────────────────────────────────────
   const chatArea = popup.querySelector(`#chatArea_${popupId}`);
   conversations.forEach(msg => {
     const row = document.createElement('div');
@@ -540,7 +435,6 @@ function openChatFromItem(name, initials) {
   });
   chatArea.scrollTop = chatArea.scrollHeight;
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
   function fmtTime(s) {
     return Math.floor(s / 60).toString().padStart(2, '0') + ':' + (s % 60).toString().padStart(2, '0');
   }
@@ -552,9 +446,7 @@ function openChatFromItem(name, initials) {
       <button class="vr-cancel" id="vrCancel_${popupId}" title="Cancel"><i class="fa-solid fa-xmark"></i></button>
       <button class="vr-stop"   id="vrStop_${popupId}"   title="Stop"><span class="vr-stop-icon"></span></button>
       <div class="vr-track">
-        <div class="vr-bars">
-          ${'<div class="vr-bar"></div>'.repeat(8)}
-        </div>
+        <div class="vr-bars">${'<div class="vr-bar"></div>'.repeat(8)}</div>
         <span class="vr-timer" id="vrTimer_${popupId}">0:00</span>
       </div>
       <button class="vr-send" id="vrSendDirect_${popupId}" title="Send now">
@@ -706,7 +598,6 @@ function openChatFromItem(name, initials) {
     startRecording();
   });
 
-  // Send text message
   function sendChatMsg() {
     const text = chatInput.value.trim();
     if (!text) return;
@@ -720,13 +611,11 @@ function openChatFromItem(name, initials) {
   chatSend.addEventListener('click', sendChatMsg);
   chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMsg(); });
 
-  // Minimize button → push to top of stack
   popup.querySelector(`#minimizeBtn_${popupId}`)?.addEventListener('click', e => {
     e.stopPropagation();
     minimizePopup(popupId);
   });
 
-  // Close button — permanently removes popup
   popup.querySelector(`#closeBtn_${popupId}`)?.addEventListener('click', () => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.ondataavailable = null;
@@ -795,14 +684,10 @@ function createComposePopup() {
   `;
 
   document.body.appendChild(popup);
-
-  // Register in minimized map
   minimizedChats.set('composePopup', { name: 'New Message', initials: '', avatarColor: '#205e38', isCompose: true });
-
   registerPopup('composePopup');
   popup.classList.add('open');
 
-  // Minimize button → push to top of stack
   popup.querySelector('#composeMinimize')?.addEventListener('click', e => {
     e.stopPropagation();
     minimizePopup('composePopup');
@@ -881,6 +766,7 @@ function createComposePopup() {
     const ci  = chatFooter.querySelector('#chatInput');
     const cs  = chatFooter.querySelector('#chatSend');
     const mb2 = chatFooter.querySelector('#micBtn');
+
     function sendChatMsg() {
       const text = ci.value.trim(); if (!text) return;
       const row = document.createElement('div'); row.className = 'chat-msg-row sent';
