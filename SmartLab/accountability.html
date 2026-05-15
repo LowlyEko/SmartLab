@@ -123,30 +123,32 @@
       </div>
 
       <!-- Table -->
-      <div class="accountability-table-wrapper">
+      <div class="accountability-table-outer">
         <div class="table-header-bar">
-          <h2>Accountability Records</h2>
+          <h2>Student Accountability</h2>
           <span class="table-meta" id="table-meta"></span>
         </div>
-        <table class="accountability-table">
-          <thead>
-            <tr>
-              <th>Date Borrowed</th>
-              <th>Names/Broken By</th>
-              <th>Materials Broken</th>
-              <th>Teacher</th>
-              <th>Subject</th>
-              <th>Time</th>
-              <th>Program/Course/Section</th>
-              <th>Deadline</th>
-              <th>Remarks</th>
-              <th>Date Replaced</th>
-              <th>Received By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="accountability-tbody"></tbody>
-        </table>
+        <div class="accountability-table-wrapper">
+          <table class="accountability-table">
+            <thead>
+              <tr>
+                <th data-sort="dateBorrowed">Date Borrowed <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="persons">Names/Broken By <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="materialsBroken">Materials Broken <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="teacher">Teacher <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="subject">Subject <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="time">Time <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="programSection">Program/Course/Section <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="deadline">Deadline <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="remarks">Remarks <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="dateReplaced">Date Replaced <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th data-sort="receivedBy">Received By <i class='bx bx-sort-alt-2' style="font-size:12px;vertical-align:middle;opacity:.6;"></i></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accountability-tbody"></tbody>
+          </table>
+        </div>
         <div class="pagination-bar">
           <span id="pagination-info" style="font-size:13px;color:#888;"></span>
           <div class="pagination-btns" id="pagination-btns"></div>
