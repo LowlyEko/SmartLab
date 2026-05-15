@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CAS Laboratory – Calendar</title>
+  <title>SmartLab – Calendar</title>
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="calendar.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -18,7 +18,7 @@
           <img src="CAS Logo.png" alt="Logo" onerror="this.style.display='none'">
         </span>
         <div class="text header-text">
-          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+          <div class="brand-name">Smart<span class="name">Lab</span></div>
         </div>
         <i class='bx bx-chevron-right toggle'></i>
       </div>
@@ -51,14 +51,159 @@
     <header>
       <div class="header-icons">
         <i class="fa-solid fa-bell"></i>
-        <i class="fa-solid fa-comment"></i>
+        <div class="msg-icon-wrap" id="msgToggle">
+          <i class="fa-solid fa-comment"></i>
+          <span class="msg-badge" id="msgBadge">2</span>
+        </div>
+
+        <div class="msg-panel" id="msgPanel">
+          <div class="mp-header">
+            <div class="mp-header-row">
+              <span class="mp-header-title">Messages</span>
+              <div class="mp-header-actions">
+                <button class="mp-icon-btn" id="optionsBtn" title="Options">
+                  <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <button class="mp-icon-btn" id="newMsgBtn" title="New message">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mp-search-wrap">
+              <i class="fa-solid fa-magnifying-glass mp-search-icon"></i>
+              <input class="mp-search" id="mpSearch" type="text" placeholder="Search Messenger">
+            </div>
+
+            <div class="mp-tabs">
+              <button class="mp-tab active" data-tab="all">All</button>
+              <button class="mp-tab" data-tab="unread">Unread</button>
+              <button class="mp-tab" data-tab="groups">Groups</button>
+            </div>
+          </div>
+
+          <div class="mp-list" id="mpList">
+            <div class="mp-item unread" data-type="dm" data-name="Maria Cruz">
+              <div class="mp-avatar">MC</div>
+              <div class="mp-info">
+                <div class="mp-name">Maria Cruz</div>
+                <div class="mp-text">Can I borrow the microscope set for Friday?</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">9:41 AM</span>
+                <span class="mp-dot"></span>
+              </div>
+            </div>
+            <div class="mp-item unread" data-type="dm" data-name="Rodel Lim">
+              <div class="mp-avatar mp-yellow">RL</div>
+              <div class="mp-info">
+                <div class="mp-name">Rodel Lim</div>
+                <div class="mp-text">The centrifuge reservation is confirmed.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">8:55 AM</span>
+                <span class="mp-dot"></span>
+              </div>
+            </div>
+            <div class="mp-item" data-type="dm" data-name="Ana Jimenez">
+              <div class="mp-avatar mp-red">AJ</div>
+              <div class="mp-info">
+                <div class="mp-name">Ana Jimenez</div>
+                <div class="mp-text">Damage report for Beaker #4 submitted.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">Yesterday</span>
+              </div>
+            </div>
+            <div class="mp-item" data-type="dm" data-name="Karl Buenaventura">
+              <div class="mp-avatar">KB</div>
+              <div class="mp-info">
+                <div class="mp-name">Karl Buenaventura</div>
+                <div class="mp-text">Equipment return logged successfully.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">May 1</span>
+              </div>
+            </div>
+            <div class="mp-item" data-type="group" data-name="CAS Lab Team">
+              <div class="mp-avatar mp-blue">CL</div>
+              <div class="mp-info">
+                <div class="mp-name">CAS Lab Team</div>
+                <div class="mp-text">Juan: Schedule for next week is posted.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">Apr 30</span>
+              </div>
+            </div>
+            <div class="mp-item unread" data-type="group" data-name="Reservation Alerts">
+              <div class="mp-avatar mp-yellow">RA</div>
+              <div class="mp-info">
+                <div class="mp-name">Reservation Alerts</div>
+                <div class="mp-text">3 new reservations pending approval today.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">Apr 29</span>
+                <span class="mp-dot"></span>
+              </div>
+            </div>
+            <div class="mp-item" data-type="community" data-name="Science Department">
+              <div class="mp-avatar mp-red">SD</div>
+              <div class="mp-info">
+                <div class="mp-name">Science Department</div>
+                <div class="mp-text">Reminder: Annual inventory check on May 10.</div>
+              </div>
+              <div class="mp-meta">
+                <span class="mp-time">Apr 28</span>
+              </div>
+            </div>
+            <div class="mp-no-results" id="mpNoResults">No messages found.</div>
+          </div>
+
+          <div class="mp-footer">
+            <button id="viewAllBtn">View all messages →</button>
+          </div>
+        </div>
+        
         <div class="profile">
-          <img src="profile.jpg" alt="">
-          <i class="fa-solid fa-angle-down"></i>
-          <ul class="dropdown-content">
-            <li><a href="#">Profile</a></li>
-            <li><a href="Login-Register.html">Logout</a></li>
-          </ul>
+          <img src="profile.jpg" alt="" id="profileAvatar">
+          <i class="fa-solid fa-angle-down" id="profileChevron"></i>
+          <div class="profile-panel" id="profilePanel">
+            <div class="panel-header">
+              <div class="panel-avatar">JD</div>
+              <div class="panel-info">
+                <div class="pname">Juan Dela Cruz</div>
+                <div class="prole">System Administrator</div>
+                <div class="pemail">juan@cas.edu.ph</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="panel-section-label">Account</div>
+              <a href="profile.html" class="panel-item">
+                <div class="picon"><i class="fa-solid fa-user"></i></div>
+                <span class="plabel">My Profile</span>
+                <span class="pbadge">Admin</span>
+              </a>
+              <a href="settings.html" class="panel-item">
+                <div class="picon"><i class="fa-solid fa-gear"></i></div>
+                <span class="plabel">Settings</span>
+              </a>
+              <div class="panel-divider"></div>
+              <div class="panel-section-label">Activity</div>
+              <a href="#" class="panel-item">
+                <div class="picon"><i class="fa-solid fa-chart-line"></i></div>
+                <span class="plabel">Activity Log</span>
+              </a>
+              <div class="panel-divider"></div>
+              <a href="Login-Register.html" class="panel-item logout">
+                <div class="picon"><i class="fa-solid fa-right-from-bracket"></i></div>
+                <span class="plabel">Logout</span>
+              </a>
+            </div>
+            <div class="panel-footer">
+              <span class="version">CAS SmartLab v1.0</span>
+              <span class="online-dot">Online</span>
+            </div>
+          </div>
         </div>
       </div>
     </header>
