@@ -1,0 +1,42 @@
+// SmartLab/js/guard.js
+// Protects admin/staff pages — redirect to login if no valid token
+
+(function () {
+  const token = localStorage.getItem("smartlab_admin_token");
+  const user = JSON.parse(localStorage.getItem("smartlab_admin_user") || "{}");
+  const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+
+  const allowedRoles = ["LABORATORY_STAFF", "LABORATORY_CHEMIST", "ADMIN"];
+
+  const protectedPages = [
+    "dashboard.html", "reservation.html", "calendar.html",
+    "accountability.html", "inventory.html", "transaction.html"
+  ];
+
+  // Not logged in → redirect to login
+  if (protectedPages.includes(currentPage) && (!token || !allowedRoles.includes(user.user_type))) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Already logged in and on login page → redirect to dashboard
+  if (currentPage === "login.html" && token && allowedRoles.includes(user.user_type)) {
+    window.location.href = "dashboard.html";
+  }
+})();
+
+// Helper used by admin pages to get auth headers
+function getAdminHeaders() {
+  const token = localStorage.getItem("smartlab_admin_token");
+  return {
+    "Content-Type": "application/json",
+    "Authorization": token ? `Bearer ${token}` : ""
+  };
+}
+
+// Logout helper
+function adminLogout() {
+  localStorage.removeItem("smartlab_admin_token");
+  localStorage.removeItem("smartlab_admin_user");
+  window.location.href = "login.html";
+}
