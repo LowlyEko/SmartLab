@@ -119,13 +119,13 @@ header .image-text .header-text {
   color: rgb(255, 255, 255);
   flex-direction: column;
   font-size: 18px;
+  margin-left: 18px;
 }
 
 .header-text .name {
   font-weight: bold;
   color: #FDD835;
   font-size: 18px;
-  margin-left: 4px;
 }
 
 .header-text .brand-name {
@@ -364,10 +364,10 @@ body.dark .switch::before { background: #fff; left: 24px; }
   margin-top: 22.4px;
   font-size: 28.8px;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #205e38;
 }
 
-body.dark .page-content h1 { color: #fff; }
+body.dark .page-content h1 { color: #2d9e4f; }
 
 /* ===== Dark Mode Overrides ===== */
 body.dark .main-content header {
