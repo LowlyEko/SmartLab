@@ -62,17 +62,17 @@
     ],
 
     supplies: [
-      { id:"IT001", name:"Latex Gloves (M)",        brand:"Medline",       location:"Supply Room" },
-      { id:"IT002", name:"Safety Goggles",          brand:"3M",            location:"Supply Room" },
-      { id:"IT003", name:"Lab Coat (M)",            brand:"Generic",       location:"Supply Room" },
-      { id:"IT004", name:"Pipette Tips (10µL)",     brand:"Axygen",        location:"Cabinet 3" },
-      { id:"IT005", name:"Filter Paper",            brand:"Whatman",       location:"Cabinet 3" },
-      { id:"IT006", name:"Disposable Syringes 5mL", brand:"BD",            location:"Supply Room" },
-      { id:"IT007", name:"Rubber Tubing",           brand:"Generic",       location:"Cabinet 4" },
-      { id:"IT008", name:"Aluminum Foil",           brand:"Generic",       location:"Supply Room" },
-      { id:"IT009", name:"Masking Tape",            brand:"3M",            location:"Supply Room" },
-      { id:"IT010", name:"Marker (Permanent)",      brand:"Sharpie",       location:"Supply Room" },
-      { id:"IT011", name:"Micropipette Tips 1mL",   brand:"Axygen",        location:"Cabinet 3" },
+      { id:"IT001", name:"Latex Gloves (M)",        brand:"Medline",        location:"Supply Room" },
+      { id:"IT002", name:"Safety Goggles",          brand:"3M",             location:"Supply Room" },
+      { id:"IT003", name:"Lab Coat (M)",            brand:"Generic",        location:"Supply Room" },
+      { id:"IT004", name:"Pipette Tips (10µL)",     brand:"Axygen",         location:"Cabinet 3" },
+      { id:"IT005", name:"Filter Paper",            brand:"Whatman",        location:"Cabinet 3" },
+      { id:"IT006", name:"Disposable Syringes 5mL", brand:"BD",             location:"Supply Room" },
+      { id:"IT007", name:"Rubber Tubing",           brand:"Generic",        location:"Cabinet 4" },
+      { id:"IT008", name:"Aluminum Foil",           brand:"Generic",        location:"Supply Room" },
+      { id:"IT009", name:"Masking Tape",            brand:"3M",             location:"Supply Room" },
+      { id:"IT010", name:"Marker (Permanent)",      brand:"Sharpie",        location:"Supply Room" },
+      { id:"IT011", name:"Micropipette Tips 1mL",   brand:"Axygen",         location:"Cabinet 3" },
       { id:"IT012", name:"Bench Paper",             brand:"Kimberly-Clark", location:"Supply Room" },
     ],
 
@@ -101,7 +101,7 @@
       { key:"brand",       label:"Brand" },
       { key:"location",    label:"Location / Storage" },
       { key:"remarks",     label:"Remarks" },
-      { key:"_actions",    label:"Actions",   type:"actions" },
+      { key:"_actions",    label:"Actions", type:"actions" },
     ],
     glassware: [
       { key:"id",          label:"ID" },
@@ -110,7 +110,7 @@
       { key:"brand",       label:"Brand" },
       { key:"location",    label:"Location / Storage" },
       { key:"remarks",     label:"Remarks" },
-      { key:"_actions",    label:"Actions",   type:"actions" },
+      { key:"_actions",    label:"Actions", type:"actions" },
     ],
     equipment: [
       { key:"id",               label:"ID" },
@@ -123,14 +123,14 @@
       { key:"calibrationDate",  label:"Calibration Date" },
       { key:"calibrationFreq",  label:"Calibration Frequency" },
       { key:"remarks",          label:"Remarks" },
-      { key:"_actions",         label:"Actions",   type:"actions" },
+      { key:"_actions",         label:"Actions", type:"actions" },
     ],
     supplies: [
       { key:"id",       label:"ID" },
       { key:"name",     label:"Name of Supply" },
       { key:"brand",    label:"Brand" },
       { key:"location", label:"Location / Storage" },
-      { key:"_actions", label:"Actions",   type:"actions" },
+      { key:"_actions", label:"Actions", type:"actions" },
     ],
     chemicals: [
       { key:"id",          label:"ID" },
@@ -179,13 +179,13 @@
       { key:"remarks",         label:"Remarks",                 type:"text",   placeholder:"e.g. FUNCTIONAL, NOT FUNCTIONAL, FOR REPAIR", full:true },
     ],
     supplies: [
-      { key:"id",       label:"Item ID",            type:"text",   placeholder:"IT001" },
-      { key:"name",     label:"Name of Supply",     type:"text",   placeholder:"e.g. Latex Gloves (M)", full:true },
-      { key:"brand",    label:"Brand",              type:"text",   placeholder:"e.g. Medline, 3M" },
-      { key:"location", label:"Location / Storage", type:"text",   placeholder:"e.g. Supply Room" },
+      { key:"id",       label:"Item ID",            type:"text", placeholder:"IT001" },
+      { key:"name",     label:"Name of Supply",     type:"text", placeholder:"e.g. Latex Gloves (M)", full:true },
+      { key:"brand",    label:"Brand",              type:"text", placeholder:"e.g. Medline, 3M" },
+      { key:"location", label:"Location / Storage", type:"text", placeholder:"e.g. Supply Room" },
     ],
     chemicals: [
-      { key:"id",          label:"Item ID",       type:"text",   placeholder:"CH001", full:false },
+      { key:"id",          label:"Item ID",       type:"text",   placeholder:"CH001" },
       { key:"name",        label:"Chemical Name", type:"text",   placeholder:"Chemical name", full:true },
       { key:"category",    label:"Category",      type:"select", options:["Acids","Bases","Solvents","Salts","Biological","Oxidizers","Other"] },
       { key:"quantity",    label:"Quantity",      type:"number", placeholder:"0" },
@@ -203,9 +203,7 @@
   function badgeClass(s) { return s === "Available" ? "badge-ok" : s === "Low Stock" ? "badge-low" : "badge-empty"; }
   function badgeLabel(s) { return s || "–"; }
 
-  function today() {
-    return new Date().toISOString().split("T")[0];
-  }
+  function today() { return new Date().toISOString().split("T")[0]; }
 
   function generateId() {
     const prefix = { apparatus:"AP", glassware:"GL", equipment:"EQ", supplies:"IT", chemicals:"CH" }[currentTab];
@@ -213,6 +211,66 @@
     const next   = (nums.length ? Math.max(...nums) : 0) + 1;
     return prefix + String(next).padStart(3, "0");
   }
+
+  /* ────────────────────────────────────────────
+     Custom Dropdown Logic
+  ──────────────────────────────────────────── */
+  function getStatusValue() {
+    const active = document.querySelector("#invStatusMenu .item.active");
+    return active ? active.dataset.value : "";
+  }
+
+  function getBrandValue() {
+    const active = document.querySelector("#invBrandMenu .item.active");
+    return active ? active.dataset.value : "";
+  }
+
+  function resetDropdown(btnId, menuId, defaultLabel) {
+    const btn  = document.getElementById(btnId);
+    const menu = document.getElementById(menuId);
+    if (btn)  btn.querySelector("span").textContent = defaultLabel;
+    if (menu) {
+      menu.querySelectorAll(".item").forEach((item, i) => {
+        item.classList.toggle("active", i === 0);
+      });
+    }
+  }
+
+  function setupDropdown(dropId, btnId, menuId, onSelect) {
+    const btn  = document.getElementById(btnId);
+    const menu = document.getElementById(menuId);
+    if (!btn || !menu) return;
+
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      // Close all other inv dropdowns
+      document.querySelectorAll(".inv-dropdown-menu").forEach(m => {
+        if (m !== menu) {
+          m.classList.remove("open");
+          m.previousElementSibling && m.previousElementSibling.classList.remove("open");
+        }
+      });
+      btn.classList.toggle("open");
+      menu.classList.toggle("open");
+    });
+
+    menu.addEventListener("click", function (e) {
+      const item = e.target.closest(".item");
+      if (!item) return;
+      menu.querySelectorAll(".item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+      btn.querySelector("span").textContent = item.textContent.trim();
+      btn.classList.remove("open");
+      menu.classList.remove("open");
+      onSelect(item.dataset.value);
+    });
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".inv-dropdown-btn").forEach(b => b.classList.remove("open"));
+    document.querySelectorAll(".inv-dropdown-menu").forEach(m => m.classList.remove("open"));
+  });
 
   /* ────────────────────────────────────────────
      Tab Switching
@@ -224,61 +282,60 @@
     sortDir     = 1;
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
     document.getElementById("searchInput").value = "";
-    document.getElementById("statusFilter").value = "";
-    document.getElementById("brandFilter").value = "";
+
+    // Reset dropdowns
+    const brandLabel = tab === "equipment" ? "All Brands/Models" : "All Brands";
+    resetDropdown("invStatusBtn", "invStatusMenu", "All Status");
+    resetDropdown("invBrandBtn",  "invBrandMenu",  brandLabel);
+
     populateBrandFilter();
     renderStats();
     renderTable();
   };
 
   /* ────────────────────────────────────────────
-     Category Filter
+     Brand Filter Population
   ──────────────────────────────────────────── */
   function populateBrandFilter() {
-    const sel   = document.getElementById("brandFilter");
+    const menu  = document.getElementById("invBrandMenu");
+    const btn   = document.getElementById("invBrandBtn");
     const label = currentTab === "equipment" ? "All Brands/Models" : "All Brands";
 
     const brands = [...new Set(
       data[currentTab].flatMap(r => {
         if (!r.brand) return [];
         return r.brand
-          .split(/\s*;\s*/)                      // split on semicolons
-          .map(s => s.replace(/^\d+\s+/, "")     // strip leading "18 " or "4 "
-                    .replace(/\s+\d+$/, "")     // strip trailing " 12" or " 1"
-                    .trim())
+          .split(/\s*;\s*/)
+          .map(s => s.replace(/^\d+\s+/, "").replace(/\s+\d+$/, "").trim())
           .filter(Boolean);
       })
     )].sort();
 
-    sel.innerHTML = `<option value="">${label}</option>` +
-      brands.map(b => `<option value="${b}">${b}</option>`).join("");
+    if (btn) btn.querySelector("span").textContent = label;
+
+    menu.innerHTML =
+      `<div class="item active" data-value="">${label}</div>` +
+      brands.map(b => `<div class="item" data-value="${b}">${b}</div>`).join("");
   }
 
   /* ────────────────────────────────────────────
      Stats
   ──────────────────────────────────────────── */
   function renderStats() {
-    const rows  = data[currentTab];
-    const total = rows.length;
-
-    // For tabs without status, just show total
+    const rows     = data[currentTab];
+    const total    = rows.length;
     const hasStatus = rows.some(r => r.status);
-    const ok    = hasStatus ? rows.filter(r => r.status === "Available").length : "–";
-    const low   = hasStatus ? rows.filter(r => r.status === "Low Stock").length : "–";
-    const empty = hasStatus ? rows.filter(r => r.status === "Out of Stock").length : "–";
+    const borrowed = hasStatus ? rows.filter(r => r.status === "Borrowed").length  : "–";
+    const empty    = hasStatus ? rows.filter(r => r.status === "Out of Stock").length : "–";
 
     document.getElementById("statsRow").innerHTML = `
       <div class="stat-card">
-        <div class="stat-icon blue"><i class='bx bx-list-ul'></i></div>
+        <div class="stat-icon blue "><i class='bx bx-list-ul'></i></div>
         <div class="stat-info"><div class="stat-val">${total}</div><div class="stat-lbl">Total Items</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon green"><i class='bx bx-check-circle'></i></div>
-        <div class="stat-info"><div class="stat-val">${ok}</div><div class="stat-lbl">Available</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon gold"><i class='bx bx-error-circle'></i></div>
-        <div class="stat-info"><div class="stat-val">${low}</div><div class="stat-lbl">Low Stock</div></div>
+        <div class="stat-icon gold"><i class='bx bx-package'></i></div>
+        <div class="stat-info"><div class="stat-val">${borrowed}</div><div class="stat-lbl">Borrowed Items</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon red"><i class='bx bx-x-circle'></i></div>
@@ -292,8 +349,8 @@
   ──────────────────────────────────────────── */
   function getFiltered() {
     const q  = document.getElementById("searchInput").value.toLowerCase();
-    const st = document.getElementById("statusFilter").value;
-    const br = document.getElementById("brandFilter").value;
+    const st = getStatusValue();
+    const br = getBrandValue();
 
     return data[currentTab].filter(row => {
       const matchQ  = !q  || Object.values(row).some(v => String(v).toLowerCase().includes(q));
@@ -316,7 +373,7 @@
     if (sortKey) {
       filtered.sort((a, b) => {
         const av = a[sortKey] ?? ""; const bv = b[sortKey] ?? "";
-        const an = parseFloat(av); const bn = parseFloat(bv);
+        const an = parseFloat(av);  const bn = parseFloat(bv);
         if (!isNaN(an) && !isNaN(bn)) return (an - bn) * sortDir;
         return String(av).localeCompare(String(bv)) * sortDir;
       });
@@ -491,6 +548,16 @@
   /* ────────────────────────────────────────────
      Init
   ──────────────────────────────────────────── */
+  setupDropdown("invStatusDrop", "invStatusBtn", "invStatusMenu", function () {
+    currentPage = 1;
+    renderTable();
+  });
+
+  setupDropdown("invBrandDrop", "invBrandBtn", "invBrandMenu", function () {
+    currentPage = 1;
+    renderTable();
+  });
+
   populateBrandFilter();
   renderStats();
   renderTable();
