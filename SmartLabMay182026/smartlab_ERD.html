@@ -1,0 +1,198 @@
+
+<div id="erd" style="padding: 1rem 0; overflow-x: auto;"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#3C3489' : '#EEEDFE',
+    primaryBorderColor: dark ? '#AFA9EC' : '#7F77DD',
+    primaryTextColor: dark ? '#c2c0b6' : '#26215C',
+    secondaryColor: dark ? '#085041' : '#E1F5EE',
+    tertiaryColor: dark ? '#26215C' : '#EEEDFE',
+  },
+});
+
+const diagram = `erDiagram
+
+  COLLEGES {
+    int college_id PK
+    varchar college_name
+    varchar college_code
+  }
+
+  USERS {
+    int user_id PK
+    varchar student_number
+    varchar first_name
+    varchar last_name
+    varchar middle_name
+    varchar email
+    varchar contact_number
+    int college_id FK
+    varchar user_type
+    int year_level
+    varchar section
+    boolean is_active
+  }
+
+  RESERVATIONS {
+    int reservation_id PK
+    varchar group_number
+    int reserving_student FK
+    int professor_id FK
+    int custodian_id FK
+    datetime date_requested
+    date date_needed
+    time time_start
+    time time_end
+    varchar activity_title
+    varchar status
+    varchar conditions_note
+    varchar rejection_reason
+  }
+
+  RESERVATION_MEMBERS {
+    int member_id PK
+    int reservation_id FK
+    int student_id FK
+  }
+
+  RESERVATION_ITEMS {
+    int res_item_id PK
+    int reservation_id FK
+    int item_id FK
+    int quantity
+    varchar volume_size
+    varchar notes
+  }
+
+  ACCOUNTABILITY {
+    int accountability_id PK
+    int reservation_id FK
+    int responsible_student FK
+    int professor_id FK
+    int custodian_id FK
+    int item_id FK
+    varchar item_description
+    varchar specifics
+    int quantity_broken
+    datetime date_time_broken
+    varchar resolution_status
+    varchar resolution_notes
+  }
+
+  INVENTORY_ITEMS {
+    int item_id PK
+    varchar category
+    varchar name
+    varchar location
+    float amount
+    varchar unit
+    boolean is_active
+  }
+
+  INVENTORY_GLASSWARE_DETAILS {
+    int item_id PK
+    varchar description
+  }
+
+  INVENTORY_GLASSWARE_BRANDS {
+    int brand_entry_id PK
+    int item_id FK
+    varchar brand_name
+    int amount
+    varchar remarks
+  }
+
+  INVENTORY_EQUIPMENT_DETAILS {
+    int item_id PK
+    varchar brand_model
+    varchar serial_number
+    varchar property_number
+    varchar equipment_code
+    date calibration_date
+    varchar calibration_frequency
+    varchar remarks
+  }
+
+  INVENTORY_APPARATUS_DETAILS {
+    int item_id PK
+    varchar description
+    varchar brand
+    varchar remarks
+  }
+
+  INVENTORY_SUPPLY_DETAILS {
+    int item_id PK
+    varchar brand
+  }
+
+  INVENTORY_CHEMICAL_DETAILS {
+    int item_id PK
+    varchar remarks
+  }
+
+  ACTIVITY_LOG {
+    int log_id PK
+    int actor_id FK
+    varchar action
+    varchar target_table
+    int target_id
+    varchar details
+    datetime created_at
+  }
+
+  COLLEGES                    ||--o{ USERS                       : "belongs to"
+  USERS                       ||--o{ RESERVATIONS                : "reserves"
+  USERS                       ||--o{ RESERVATION_MEMBERS         : "member of"
+  USERS                       ||--o{ ACCOUNTABILITY              : "responsible"
+  USERS                       ||--o{ ACTIVITY_LOG                : "actor"
+  RESERVATIONS                ||--o{ RESERVATION_MEMBERS         : "has members"
+  RESERVATIONS                ||--o{ RESERVATION_ITEMS           : "includes items"
+  RESERVATIONS                ||--o{ ACCOUNTABILITY              : "linked to"
+  INVENTORY_ITEMS             ||--o{ RESERVATION_ITEMS           : "reserved via"
+  INVENTORY_ITEMS             ||--o{ ACCOUNTABILITY              : "reported via"
+  INVENTORY_ITEMS             ||--o| INVENTORY_GLASSWARE_DETAILS : "extends"
+  INVENTORY_ITEMS             ||--o| INVENTORY_EQUIPMENT_DETAILS : "extends"
+  INVENTORY_ITEMS             ||--o| INVENTORY_APPARATUS_DETAILS : "extends"
+  INVENTORY_ITEMS             ||--o| INVENTORY_SUPPLY_DETAILS    : "extends"
+  INVENTORY_ITEMS             ||--o| INVENTORY_CHEMICAL_DETAILS  : "extends"
+  INVENTORY_GLASSWARE_DETAILS ||--o{ INVENTORY_GLASSWARE_BRANDS  : "has brands"
+`;
+
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+document.querySelectorAll('#erd svg .row-rect-odd path, #erd svg .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>
