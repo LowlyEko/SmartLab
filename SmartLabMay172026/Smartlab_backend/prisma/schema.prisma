@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id        Int      @id @default(autoincrement())
+  student_number String?  @unique
+  username       String   @unique
+  first_name     String
+  middle_name    String?
+  last_name      String
+  email          String   @unique
+  password_hash  String?
+  contact_number String?
+  college        String?
+  user_type      UserType @default(STUDENT)
+  year_level     Int?
+  section        String?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  reservations        Reservation[]
+  accountability      Accountability[]
+  reservation_members ReservationMember[]
+  activity_logs       ActivityLog[]
+
+  @@map("users")
+}
+
+enum UserType {
+  STUDENT
+  LABORATORY_STAFF
+  LABORATORY_CHEMIST
+  ADMIN
+}
+
+model InventoryItem {
+  item_id           Int       @id @default(autoincrement())
+  category          Category
+  name              String
+  description       String?   @db.Text
+  brand             String?
+  location          String?
+  amount            Decimal   @default(0)
+  unit              String?
+  // Equipment-specific fields
+  serial_number     String?
+  property_number   String?
+  equipment_code    String?
+  calibration_date  DateTime?
+  calibration_freq  String?
+  // Chemical-specific fields
+  hazard            String?
+  expiry_date       DateTime?
+  // Status & remarks
+  status            ItemStatus @default(AVAILABLE)
+  remarks           String?   @db.Text
+  is_active         Boolean   @default(true)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  reservation_items ReservationItem[]
+  accountability    Accountability[]
+
+  @@map("inventory_items")
+}
+
+enum Category {
+  GLASSWARE
+  EQUIPMENT
+  APPARATUS
+  SUPPLY
+  CHEMICAL
+}
+
+enum ItemStatus {
+  AVAILABLE
+  LOW_STOCK
+  OUT_OF_STOCK
+  DEFECTIVE
+  FOR_REPAIR
+  FOR_DISPOSAL
+}
+
+model Reservation {
+  reservation_id    Int               @id @default(autoincrement())
+  group_number      String?
+  reserving_student Int
+  professor_id      Int?
+  custodian_id      Int?
+  date_requested    DateTime          @default(now())
+  date_needed       DateTime
+  time_start        DateTime
+  time_end          DateTime
+  activity_title    String?
+  status            ReservationStatus @default(TO_REVIEW)
+  conditions_note   String?
+  rejection_reason  String?
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+
+  reservingStudent User                @relation(fields: [reserving_student], references: [user_id])
+  members          ReservationMember[]
+  items            ReservationItem[]
+  accountability   Accountability[]
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  TO_REVIEW
+  ALLOWED
+  REJECTED
+  CONDITIONAL
+}
+
+model ReservationMember {
+  member_id      Int @id @default(autoincrement())
+  reservation_id Int
+  student_id     Int
+
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade)
+  student     User        @relation(fields: [student_id], references: [user_id])
+
+  @@unique([reservation_id, student_id])
+  @@map("reservation_members")
+}
+
+model ReservationItem {
+  res_item_id    Int @id @default(autoincrement())
+  reservation_id Int
+  item_id        Int
+  quantity       Int @default(1)
+
+  reservation Reservation   @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade)
+  item        InventoryItem @relation(fields: [item_id], references: [item_id])
+
+  @@map("reservation_items")
+}
+
+model Accountability {
+  accountability_id   Int              @id @default(autoincrement())
+  reservation_id      Int
+  responsible_student Int
+  professor_id        Int?
+  custodian_id        Int?
+  item_id             Int
+  item_description    String
+  specifics           String?
+  quantity_broken     Int              @default(1)
+  date_time_broken    DateTime         @default(now())
+  resolution_status   ResolutionStatus @default(PENDING)
+  resolution_notes    String?
+  date_replaced       DateTime?
+  received_by         String?
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+
+  reservation        Reservation   @relation(fields: [reservation_id], references: [reservation_id])
+  responsibleStudent User          @relation(fields: [responsible_student], references: [user_id])
+  item               InventoryItem @relation(fields: [item_id], references: [item_id])
+
+  @@map("accountability")
+}
+
+enum ResolutionStatus {
+  PENDING
+  RESOLVED
+  OVERDUE
+}
+
+model ActivityLog {
+  log_id       Int      @id @default(autoincrement())
+  actor_id     Int?
+  action       String
+  target_table String?
+  target_id    Int?
+  details      Json?
+  created_at   DateTime @default(now())
+
+  actor User? @relation(fields: [actor_id], references: [user_id])
+
+  @@map("activity_log")
+}
