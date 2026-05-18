@@ -1,0 +1,286 @@
+// =============================================================
+//  SmartLab – Prisma Schema (updated for smartlab_schema-1.sql / caslab DB)
+//  Updated: 2026-05-18
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+//  Student
+// -------------------------------------------------------------
+model Student {
+  user_id    Int      @id @default(autoincrement())
+  student_id String?  @unique @db.VarChar(30)
+  first_name String   @db.VarChar(100)
+  last_name  String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(150)
+  college    String?  @db.VarChar(150)
+  year_level Int      @db.SmallInt
+  section    String?  @db.VarChar(50)
+  is_active  Boolean  @default(true)
+  user_type  String   @default("student") @db.VarChar(20)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @updatedAt @db.Timestamp(0)
+
+  reservations     Reservation[]
+  accountabilities Accountability[]
+
+  @@map("student")
+}
+
+// -------------------------------------------------------------
+//  Admin
+// -------------------------------------------------------------
+model Admin {
+  admin_id   Int      @id @default(autoincrement())
+  first_name String   @db.VarChar(80)
+  last_name  String   @db.VarChar(80)
+  email      String   @unique @db.VarChar(150)
+  password   String   @db.VarChar(255)
+  role       String   @db.VarChar(20) // 'laboratory_staff' | 'laboratory_chemist'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @updatedAt @db.Timestamp(0)
+
+  reservations_handled      Reservation[]    @relation("AdminHandled")
+  reservations_signed       Reservation[]    @relation("AdminSigned")
+  accountabilities_received Accountability[] @relation("ReceivedBy")
+
+  @@map("admin")
+}
+
+// -------------------------------------------------------------
+//  Location (new table)
+// -------------------------------------------------------------
+model Location {
+  location_id   BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  location_name String @db.VarChar(255)
+
+  apparatus InventoryApparatus[]
+  chemicals InventoryChemical[]
+  equipment InventoryEquipment[]
+  glassware InventoryGlassware[]
+  supplies  InventorySupplies[]
+
+  @@map("locations")
+}
+
+// -------------------------------------------------------------
+//  Inventory – Apparatus
+// -------------------------------------------------------------
+model InventoryApparatus {
+  apparatus_id   BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  apparatus_name String  @db.VarChar(255)
+  description    String? @db.VarChar(255)
+  location_id    BigInt  @db.UnsignedBigInt
+  remarks        String? @db.VarChar(255)
+  quantity       Int     @default(0)
+  brand          String? @db.VarChar(255)
+
+  location Location @relation(fields: [location_id], references: [location_id])
+
+  @@map("inventory_apparatus")
+}
+
+// -------------------------------------------------------------
+//  Inventory – Chemicals (replaces old `chemicals` table)
+// -------------------------------------------------------------
+model InventoryChemical {
+  chemical_id   BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  chemical_name String  @db.VarChar(255)
+  amount        String? @db.VarChar(255)
+  location_id   BigInt  @db.UnsignedBigInt
+  remarks       String? @db.VarChar(255)
+
+  location          Location              @relation(fields: [location_id], references: [location_id])
+  reservation_items ReservationChemical[]
+
+  @@map("inventory_chemicals")
+}
+
+// -------------------------------------------------------------
+//  Inventory – Equipment (replaces old `equipment` table)
+// -------------------------------------------------------------
+model InventoryEquipment {
+  equipment_id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  equipment_name         String   @db.VarChar(255)
+  brand                  String?  @db.VarChar(255)
+  model                  String?  @db.VarChar(255)
+  serial_no              String?  @db.VarChar(255)
+  property_number        String?  @db.VarChar(255)
+  equipment_code         String?  @db.VarChar(255)
+  location_id            BigInt   @db.UnsignedBigInt
+  calibration_date       DateTime? @db.Date
+  calibration_frequency  String?  @db.VarChar(50) // 'Annual' | 'Semi-Annual' | 'Monthly' | 'As Needed'
+  status                 String   @default("FUNCTIONAL") @db.VarChar(50) // 'FUNCTIONAL' | 'NOT FUNCTIONAL' | 'FOR REPAIR' | 'NEW'
+  remarks                String?  @db.VarChar(255)
+  quantity               Int      @default(1)
+
+  location Location @relation(fields: [location_id], references: [location_id])
+
+  @@map("inventory_equipment")
+}
+
+// -------------------------------------------------------------
+//  Inventory – Glassware (new table)
+// -------------------------------------------------------------
+model InventoryGlassware {
+  glassware_id BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  glassware    String  @db.VarChar(255)
+  description  String? @db.VarChar(255)
+  location_id  BigInt  @db.UnsignedBigInt
+  remarks      String? @db.VarChar(255)
+  quantity     Int     @default(0)
+  brand        String? @db.VarChar(255)
+
+  location Location @relation(fields: [location_id], references: [location_id])
+
+  @@map("inventory_glassware")
+}
+
+// -------------------------------------------------------------
+//  Inventory – Supplies (new table)
+// -------------------------------------------------------------
+model InventorySupplies {
+  supplies_id    BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  supplies_name  String  @db.VarChar(255)
+  brand          String? @db.VarChar(255)
+  location_id    BigInt  @db.UnsignedBigInt
+  quantity       Int     @default(0)
+  quantity_unit  String? @db.VarChar(100)
+
+  location Location @relation(fields: [location_id], references: [location_id])
+
+  @@map("inventory_supplies")
+}
+
+// -------------------------------------------------------------
+//  Reservation
+// -------------------------------------------------------------
+model Reservation {
+  reservation_id      Int      @id @default(autoincrement())
+  student_id          String   @db.VarChar(30)
+  admin_id            Int?
+  prof_name           String?  @db.VarChar(150)
+  subject             String   @db.VarChar(150)
+  date_reserved       DateTime @db.Date
+  date_borrowed       DateTime @db.Date
+  time_of_activity    DateTime @db.Time(0)
+  course_year_section String?  @db.VarChar(100)
+  group_number        Int?
+  type                String   @db.VarChar(50) // 'chemicals' | 'equipment'
+  status              String   @default("Pending") @db.VarChar(50)
+  signed_by_admin_id  Int?
+  created_at          DateTime @default(now()) @db.Timestamp(0)
+
+  student          Student                @relation(fields: [student_id], references: [student_id])
+  admin            Admin?                 @relation("AdminHandled", fields: [admin_id], references: [admin_id], onDelete: SetNull)
+  signed_by        Admin?                 @relation("AdminSigned", fields: [signed_by_admin_id], references: [admin_id], onDelete: SetNull)
+  members          ReservationMember[]
+  equipment_items  ReservationEquipment[]
+  chemical_items   ReservationChemical[]
+  accountabilities Accountability[]
+
+  @@map("reservation")
+}
+
+// -------------------------------------------------------------
+//  Reservation Members
+// -------------------------------------------------------------
+model ReservationMember {
+  member_id      Int    @id @default(autoincrement())
+  reservation_id Int
+  name           String @db.VarChar(200)
+
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade)
+
+  @@map("reservationmembers")
+}
+
+// -------------------------------------------------------------
+//  Reservation Equipment (polymorphic – item_type + item_id, no FK enforced by Prisma)
+//  item_type: 'equipment' | 'apparatus' | 'glassware' | 'supplies'
+//  item_id references the corresponding inventory table's PK (bigint unsigned)
+// -------------------------------------------------------------
+model ReservationEquipment {
+  id             Int    @id @default(autoincrement())
+  reservation_id Int
+  item_type      String @db.VarChar(20) // 'equipment' | 'apparatus' | 'glassware' | 'supplies'
+  item_id        BigInt @db.UnsignedBigInt
+  quantity       Int    @default(1)
+  remarks        String? @db.VarChar(255)
+
+  // No Prisma-level FK to inventory tables because item_type is polymorphic.
+  // FK to reservation is still enforced.
+  reservation Reservation @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade)
+
+  @@map("reservationequipment")
+}
+
+// -------------------------------------------------------------
+//  Reservation Chemical (now references inventory_chemicals, bigint unsigned PK)
+// -------------------------------------------------------------
+model ReservationChemical {
+  id             Int    @id @default(autoincrement())
+  reservation_id Int
+  chemical_id    BigInt @db.UnsignedBigInt
+  quantity       Int    @default(1)
+  remarks        String? @db.VarChar(255)
+
+  reservation Reservation       @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade)
+  chemical    InventoryChemical @relation(fields: [chemical_id], references: [chemical_id])
+
+  @@map("reservationchemicals")
+}
+
+// -------------------------------------------------------------
+//  Accountability
+// -------------------------------------------------------------
+model Accountability {
+  accountability_id      Int       @id @default(autoincrement())
+  student_id             String?   @db.VarChar(30)
+  student_name           String?   @db.VarChar(200)
+  reservation_id         Int?
+  date_borrowed          DateTime  @db.Date
+  member_name            String    @db.VarChar(200)
+  materials_broken       String    @db.VarChar(255)
+  prof_name              String    @db.VarChar(150)
+  subject                String    @db.VarChar(150)
+  time_start             DateTime? @db.Time(0)
+  time_end               DateTime? @db.Time(0)
+  program_course_section String    @db.VarChar(100)
+  deadline               DateTime? @db.Date
+  remarks                String?   @db.VarChar(500)
+  date_replaced          DateTime? @db.Date
+  received_by            Int?
+  created_at             DateTime  @default(now()) @db.Timestamp(0)
+  updated_at             DateTime  @updatedAt @db.Timestamp(0)
+
+  student     Student?     @relation(fields: [student_id], references: [student_id])
+  reservation Reservation? @relation(fields: [reservation_id], references: [reservation_id], onDelete: SetNull)
+  receiver    Admin?       @relation("ReceivedBy", fields: [received_by], references: [admin_id], onDelete: SetNull)
+  members     AccountabilityMember[]
+
+  @@map("accountability")
+}
+
+// -------------------------------------------------------------
+//  Accountability Members
+// -------------------------------------------------------------
+model AccountabilityMember {
+  id                Int    @id @default(autoincrement())
+  accountability_id Int
+  member_name       String @db.VarChar(200)
+  member_order      Int    @default(0) @db.TinyInt
+
+  accountability Accountability @relation(fields: [accountability_id], references: [accountability_id], onDelete: Cascade)
+
+  @@map("accountability_members")
+}

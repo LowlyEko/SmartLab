@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab</title>
+  <link rel="stylesheet" href="login-register.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+  <div class="container" id="container">
+
+    <!-- ===== LOGIN FORM ===== -->
+    <div class="form-box login">
+      <form id="loginForm">
+        <h1>Login</h1>
+        <p class="form-subtitle">Sign in to your account</p>
+        <div class="section-label">Login as Administrator</div>
+
+        <div id="login-error" style="display:none; background:#fff0f0; color:#c0392b; border:1px solid #f5c6cb; border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:12px;"></div>
+
+        <div class="input-box">
+          <input type="email" id="login-username" placeholder="Email" required>
+          <i class="fa-solid fa-user"></i>
+        </div>
+
+        <div class="input-box">
+          <input type="password" id="login-password" placeholder="Password" required>
+          <i class="fa-solid fa-lock"></i>
+          <img src="eye-slash-solid.png" id="login-eyeicon" alt="toggle password">
+        </div>
+
+        <div class="options-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me"> Remember me
+          </label>
+          <span class="forgot-link"><a href="#">Forgot Password?</a></span>
+        </div>
+
+        <button type="submit" class="btn-primary" id="login-btn">Login as administrator</button>
+
+        <div class="divider">Student Sign in with</div>
+
+        <div id="google-error" style="display:none; background:#fff0f0; color:#c0392b; border:1px solid #f5c6cb; border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:8px;"></div>
+
+        <div id="g_id_onload"
+          data-client_id="596806363130-117mkd7fdb0b35cnr42iipuo08b8ccck.apps.googleusercontent.com"
+          data-callback="handleGoogleLogin"
+          data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+          data-type="standard"
+          data-size="large"
+          data-theme="outline"
+          data-text="signin_with"
+          data-shape="rectangular"
+          data-logo_alignment="left"
+          data-width="300">
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== REGISTER FORM ===== -->
+    <div class="form-box register">
+      <form id="registerForm" style="width:100%;">
+        <h1>Register</h1>
+
+        <!-- Personal Details -->
+        <div class="divider1">Personal Details</div>
+
+        <div class="input-box1">
+          <input type="text" id="reg-firstname" placeholder="First Name" required name="first_name">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="input-box1">
+          <input type="text" id="reg-lastname" placeholder="Last Name" required name="last_name">
+          <i class="fa-solid fa-user"></i>
+        </div>
+
+        <!-- Account Details -->
+        <div class="divider1">Account Details</div>
+
+        <div class="input-box1">
+          <input type="email" id="reg-email" placeholder="Email" required name="email">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+        <div class="input-box1">
+          <input type="password" id="register-password" placeholder="Password (min 8 chars + numbers)" required name="password">
+          <i class="fa-solid fa-lock"></i>
+          <img src="eye-slash-solid.png" id="register-eyeicon" alt="toggle password">
+        </div>
+
+        <!-- Role & Position -->
+        <div class="divider1">Role &amp; Position</div>
+
+        <div class="input-box1 select-box">
+          <select name="user_type" required id="register-user-type">
+            <option value="" disabled selected>Select Role</option>
+            <option value="laboratory_staff">Laboratory Staff</option>
+            <option value="laboratory_chemist">Laboratory Chemist</option>
+          </select>
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+
+        <div id="register-error" style="display:none; background:#fff0f0; color:#c0392b; border:1px solid #f5c6cb; border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:8px;"></div>
+        <div id="register-success" style="display:none; background:#f0fff4; color:#276749; border:1px solid #9ae6b4; border-radius:8px; padding:10px 14px; font-size:0.82rem; margin-bottom:8px;"></div>
+
+        <div class="agree-row">
+          <input type="checkbox" id="agree-terms" required>
+          <label for="agree-terms">
+            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary1" id="register-btn">Register</button>
+      </form>
+    </div>
+
+    <!-- ===== TOGGLE PANELS ===== -->
+    <div class="toggle-box">
+
+      <div class="toggle-panel toggle-left">
+        <div class="welcome-row">
+          <div class="logo-ring">
+            <img src="CAS Logo.png" alt="CAS Logo" onerror="this.style.display='none'">
+          </div>
+          <div class="welcome-text">
+            <h2>Welcome to</h2>
+            <h1>SmartLab</h1>
+          </div>
+        </div>
+        <p class="subtitle">Your Gateway to Smart<br>SmartLab Reservations</p>
+        <p class="tagline">Don't have an account?</p>
+        <button class="btn register-btn">Register</button>
+      </div>
+
+      <div class="toggle-panel toggle-right">
+        <div class="welcome-row">
+          <div class="logo-ring">
+            <img src="CAS Logo.png" alt="CAS Logo" onerror="this.style.display='none'">
+          </div>
+          <div class="welcome-text">
+            <h2>Welcome to</h2>
+            <h1>SmartLab</h1>
+          </div>
+        </div>
+        <p class="tagline">Already have an account?</p>
+        <button class="btn login-btn">Login</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="login-register.js"></script>
+</body>
+</html>
