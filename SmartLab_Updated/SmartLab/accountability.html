@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS Laboratory – Accountability</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="accountability.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+</head>
+<body>
+
+  <!-- ===== Sidebar ===== -->
+  <nav class="sidebar close">
+    <header>
+      <div class="image-text">
+        <span class="image"><img src="CAS Logo.png" alt="Logo" onerror="this.style.display='none'"></span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+        </div>
+        <i class='bx bx-chevron-right toggle'></i>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="dashboard.html"      data-page="dashboard"><i class='bx bxs-dashboard icon'></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservation.html"    data-page="reservation"><i class='bx bx-calendar-check icon'></i><span class="text nav-text">Reservation</span></a></li>
+          <li class="nav-link"><a href="calendar.html"       data-page="calendar"><i class='bx bx-time icon'></i><span class="text nav-text">Calendar</span></a></li>
+          <li class="nav-link"><a href="accountability.html" data-page="accountability"><i class='bx bx-shield icon'></i><span class="text nav-text">Accountability</span></a></li>
+          <li class="nav-link"><a href="inventory.html"      data-page="inventory"><span class="material-symbols-outlined icon">inventory_2</span><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="transaction.html"    data-page="transaction"><i class='bx bx-file icon'></i><span class="text nav-text">Transaction</span></a></li>
+        </ul>
+      </div>
+      <div class="botton-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class='bx bx-moon icon moon'></i>
+            <i class='bx bx-sun icon sun'></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Main Content ===== -->
+  <div class="main-content">
+    <header>
+      <div class="header-icons">
+        <i class="fa-solid fa-bell"></i>
+        <i class="fa-solid fa-comment"></i>
+        <div class="profile">
+          <img src="profile.jpg" alt="">
+          <i class="fa-solid fa-angle-down"></i>
+          <ul class="dropdown-content">
+            <li><a href="#">Profile</a></li>
+            <li><hr></li>
+            <li><a href="#" onclick="adminLogout()">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <h1>Accountability</h1>
+
+      <!-- Summary Cards -->
+      <div class="accountability-summary" style="margin-top:24px;">
+        <div class="summary-card">
+          <div class="summary-icon total"><i class='bx bx-list-ul'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Total Records</div>
+            <div class="summary-value" id="cnt-total">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon active"><i class='bx bx-time-five'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Active</div>
+            <div class="summary-value" id="cnt-active">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon resolved"><i class='bx bx-check-shield'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Resolved</div>
+            <div class="summary-value" id="cnt-resolved">0</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon overdue"><i class='bx bx-error-alt'></i></div>
+          <div class="summary-info">
+            <div class="summary-label">Overdue</div>
+            <div class="summary-value" id="cnt-overdue">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="accountability-toolbar">
+        <div class="toolbar-left">
+          <div class="search-box">
+            <i class='bx bx-search'></i>
+            <input type="text" id="search-input" placeholder="Search name, material, teacher…">
+          </div>
+          <select class="filter-select" id="filter-status">
+            <option value="all">All Remarks</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-add-accountability" onclick="window.openAddModal()">
+            <i class='bx bx-plus'></i> Add Record
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="accountability-table-wrapper">
+        <div class="table-header-bar">
+          <h2>Accountability Records</h2>
+          <span class="table-meta" id="table-meta"></span>
+        </div>
+        <table class="accountability-table">
+          <thead>
+            <tr>
+              <th>Date Borrowed</th>
+              <th>Student</th>
+              <th>Reservation</th>
+              <th>Item</th>
+              <th>Names/Broken By</th>
+              <th>Materials Broken</th>
+              <th>Teacher</th>
+              <th>Subject</th>
+              <th>Time</th>
+              <th>Program/Course/Section</th>
+              <th>Deadline</th>
+              <th>Remarks</th>
+              <th>Date Replaced</th>
+              <th>Received By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountability-tbody"></tbody>
+        </table>
+        <div class="pagination-bar">
+          <span id="pagination-info" style="font-size:13px;color:#888;"></span>
+          <div class="pagination-btns" id="pagination-btns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Add/Edit Modal ===== -->
+  <div class="modal-overlay" id="acc-modal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <i class='bx bx-shield'></i>
+        <span id="modal-title-text">Add Accountability Record</span>
+      </div>
+
+      <form id="acc-form" onsubmit="return false;">
+
+        <!-- ── FK FIELDS (required for new records) ── -->
+        <div class="form-group">
+          <label>Reservation <span style="color:#e53935">*</span></label>
+          <select id="form-reservation-id">
+            <option value="">— Select Reservation —</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Responsible Student <span style="color:#e53935">*</span></label>
+            <select id="form-responsible-student">
+              <option value="">— Select Student —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Item / Equipment <span style="color:#e53935">*</span></label>
+            <select id="form-item-id" onchange="window.onItemSelected()">
+              <option value="">— Select Item —</option>
+            </select>
+          </div>
+        </div>
+        <!-- ── END FK FIELDS ── -->
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Borrowed <span style="color:#e53935">*</span></label>
+            <input type="date" id="form-date-borrowed" min="2000-01-01" max="2099-12-31">
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="time" id="form-time-start" style="flex:1;">
+              <span style="font-size:13px;color:#888;font-weight:500;">to</span>
+              <input type="time" id="form-time-end" style="flex:1;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-person field -->
+        <div class="form-group">
+          <label class="person-field-label">
+            Names/Broken By <span style="color:#e53935">*</span>
+          </label>
+          <div id="persons-container"></div>
+          <button type="button" class="btn-add-person" onclick="window.addPersonRow()">
+            <i class='bx bx-plus'></i> Add another person
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Materials Broken <span style="color:#e53935">*</span></label>
+          <input type="text" id="form-materials-broken" placeholder="e.g. Chemistry Flask, Beaker Set">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teacher</label>
+            <input type="text" id="form-teacher" placeholder="Teacher's name">
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="form-subject" placeholder="e.g. Chemistry, Physics">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Program/Course/Section</label>
+          <input type="text" id="form-program-section" placeholder="e.g. BSCS 2-A, BSED 3-B">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Deadline</label>
+            <input type="date" id="form-deadline" min="2000-01-01" max="2099-12-31">
+          </div>
+          <div class="form-group">
+            <label>Remarks</label>
+            <select id="form-remarks">
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="overdue">Overdue</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Replaced</label>
+            <input type="date" id="form-date-replaced" min="2000-01-01" max="2099-12-31">
+          </div>
+          <div class="form-group">
+            <label>Received By</label>
+            <input type="text" id="form-received-by" placeholder="Name of receiver">
+          </div>
+        </div>
+
+      </form>
+
+      <div class="modal-actions">
+        <button class="btn-cancel btn-cancel-modal">Cancel</button>
+        <button class="btn-submit" id="btn-save-record">Save Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Detail View Modal ===== -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <i class='bx bx-info-circle'></i>
+        Record Details
+        <button class="modal-close" style="margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;">
+          <i class='bx bx-x'></i>
+        </button>
+      </div>
+      <div id="detail-content"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel btn-cancel-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HTML Templates (used by accountability.js) ===== -->
+
+  <!-- Template: empty state row -->
+  <template id="tmpl-empty-state">
+    <tr>
+      <td colspan="15">
+        <div class="empty-state">
+          <i class='bx bx-shield-x'></i>
+          <p>No accountability records found.</p>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Template: table row (data filled by JS) -->
+  <template id="tmpl-table-row">
+    <tr>
+      <td class="col-date-borrowed" style="white-space:nowrap;"></td>
+      <td class="col-student-name" style="white-space:nowrap;"></td>
+      <td class="col-reservation-id" style="white-space:nowrap;font-size:0.82em;color:#555;"></td>
+      <td class="col-item-name" style="white-space:nowrap;"></td>
+      <td class="col-persons persons-td"></td>
+      <td class="col-materials-broken"></td>
+      <td class="col-teacher" style="white-space:nowrap;"></td>
+      <td class="col-subject"></td>
+      <td class="col-time" style="white-space:nowrap;"></td>
+      <td class="col-program-section"></td>
+      <td class="col-deadline" style="white-space:nowrap;"></td>
+      <td class="col-remarks"></td>
+      <td class="col-date-replaced" style="white-space:nowrap;"></td>
+      <td class="col-received-by" style="white-space:nowrap;"></td>
+      <td class="col-actions">
+        <div class="action-btns">
+          <button class="action-btn view" title="View Details"><i class='bx bx-show'></i></button>
+          <button class="action-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
+          <button class="action-btn resolve" title="Mark Resolved"><i class='bx bx-check-circle'></i></button>
+          <button class="action-btn delete" title="Delete"><i class='bx bx-trash'></i></button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Template: person input row (used in the add/edit form) -->
+  <template id="tmpl-person-row">
+    <div class="person-input-row">
+      <span class="person-num"></span>
+      <input type="text" class="person-input" placeholder="Full name" autocomplete="off">
+      <button type="button" class="person-remove-btn" title="Remove person">
+        <i class='bx bx-minus'></i>
+      </button>
+    </div>
+  </template>
+
+  <!-- Template: person name cell (inside table) -->
+  <template id="tmpl-person-name">
+    <div class="person-name-plain" style="padding:2px 0;border-bottom:1px solid #e8e8e8;line-height:1.6;"></div>
+  </template>
+
+  <!-- Template: detail modal – persons header block -->
+  <template id="tmpl-detail-persons-block">
+    <div class="detail-persons-block" style="margin-bottom:20px;padding:14px 16px;background:#f6fdf9;border-radius:10px;border:1px solid #d0ead8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <i class='bx bx-group' style="font-size:17px;color:#205e38;"></i>
+          <span class="detail-persons-label" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#205e38;"></span>
+        </div>
+        <span class="detail-remarks-badge status-badge"></span>
+      </div>
+      <div class="detail-persons-list" style="padding-left:4px;"></div>
+      <div class="detail-record-id" style="font-size:11px;color:#bbb;margin-top:6px;"></div>
+    </div>
+  </template>
+
+  <!-- Template: single person entry inside detail modal -->
+  <template id="tmpl-detail-person-entry">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span class="person-index" style="font-size:11px;color:#aaa;min-width:18px;text-align:right;"></span>
+      <span class="person-name" style="font-size:13.5px;font-weight:600;color:#1a1a1a;"></span>
+    </div>
+  </template>
+
+  <!-- Template: detail modal – incident details section -->
+  <template id="tmpl-detail-incident">
+    <div class="detail-section">
+      <div class="detail-section-title">Incident Details</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Date Borrowed</div><div class="detail-value col-date-borrowed"></div></div>
+        <div class="detail-item"><div class="detail-label">Time</div><div class="detail-value col-time"></div></div>
+        <div class="detail-item"><div class="detail-label">Materials Broken</div><div class="detail-value col-materials-broken"></div></div>
+        <div class="detail-item"><div class="detail-label">Teacher</div><div class="detail-value col-teacher"></div></div>
+        <div class="detail-item"><div class="detail-label">Subject</div><div class="detail-value col-subject"></div></div>
+        <div class="detail-item"><div class="detail-label">Program/Course/Section</div><div class="detail-value col-program-section"></div></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Template: detail modal – resolution section -->
+  <template id="tmpl-detail-resolution">
+    <div class="detail-section">
+      <div class="detail-section-title">Resolution</div>
+      <ul class="timeline">
+        <li class="tl-deadline"><strong>Deadline</strong><span class="time-label"></span></li>
+      </ul>
+    </div>
+  </template>
+
+  <!-- Template: timeline item (date replaced / received by) -->
+  <template id="tmpl-timeline-item">
+    <li><strong class="tl-label"></strong><span class="time-label"></span></li>
+  </template>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="shared.js"></script>
+  <script src="accountability.js"></script>
+</body>
+</html>
