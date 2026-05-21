@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reservation Slip</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #fff;
+      padding: 40px 50px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 15px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sub-title {
+      text-align: center;
+      font-size: 12px;
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    /* TOP SECTION */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .top-left { flex: 1; padding-right: 30px; }
+    .top-right { flex: 0 0 240px; }
+
+    .field-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .field-value {
+      font-size: 12px;
+      border-bottom: 1px solid #000;
+      flex: 1;
+      min-width: 80px;
+      padding-bottom: 1px;
+    }
+
+    /* MIDDLE SECTION */
+    .middle-section { margin-bottom: 14px; }
+
+    .members-list {
+      margin-top: 4px;
+      margin-left: 16px;
+    }
+
+    .members-list li {
+      font-size: 12px;
+      margin-bottom: 6px;
+      list-style: none;
+      border-bottom: 1px solid #000;
+      min-width: 200px;
+      display: inline-block;
+      padding-bottom: 1px;
+    }
+
+    /* MATERIALS TABLE */
+    .materials-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .materials-table th {
+      border: 1px solid #000;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      background: #f5f5f5;
+    }
+
+    .materials-table th:first-child { text-align: left; }
+
+    .materials-table td {
+      border: 1px solid #000;
+      padding: 7px 10px;
+      font-size: 12px;
+      height: 28px;
+      vertical-align: middle;
+    }
+
+    .materials-table td:nth-child(2),
+    .materials-table td:nth-child(3) { text-align: center; }
+
+    /* EQUIPMENT LOG */
+    .equip-log {
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* SIGNATURES */
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    .sig-col { flex: 1; padding-right: 20px; }
+    .sig-col:last-child { padding-right: 0; }
+
+    .sig-label {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .sig-line {
+      border-bottom: 1px solid #000;
+      margin-bottom: 4px;
+    }
+
+    .sig-name {
+      font-size: 11px;
+      text-align: center;
+      color: #333;
+    }
+
+    .sig-sub-label {
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+
+    /* PRINT BUTTON */
+    .print-bar {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .print-btn {
+      padding: 8px 20px;
+      background: #205e38;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .print-btn:hover { background: #16a34a; }
+
+    @media print {
+      .print-bar { display: none; }
+      body { padding: 20px 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>
+
+  <h2>CAS Laboratory — Reservation Slip</h2>
+  <div class="sub-title" id="slip-res-id"></div>
+
+  <!-- TOP ROW -->
+  <div class="top-row">
+    <div class="top-left">
+      <div class="field-row">
+        <span class="field-label">Subject:</span>
+        <span class="field-value" id="slip-subject"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Requestor:</span>
+        <span class="field-value" id="slip-name"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Student ID:</span>
+        <span class="field-value" id="slip-student-id"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Professor:</span>
+        <span class="field-value" id="slip-prof"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Prof. Email:</span>
+        <span class="field-value" id="slip-prof-email"></span>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="field-row">
+        <span class="field-label">Date Reserved:</span>
+        <span class="field-value" id="slip-date-reserved"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Date Borrowed:</span>
+        <span class="field-value" id="slip-date-borrowed"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Time of activity:</span>
+        <span class="field-value" id="slip-time"></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Status:</span>
+        <span class="field-value" id="slip-status"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDDLE -->
+  <div class="middle-section">
+    <div class="field-row">
+      <span class="field-label">Course/Year/Section:</span>
+      <span class="field-value" id="slip-course"></span>
+    </div>
+    <div class="field-row" style="margin-top:8px;">
+      <span class="field-label">Group #:</span>
+      <span class="field-value" id="slip-group" style="max-width:80px;"></span>
+    </div>
+    <div style="margin-top:10px;">
+      <span class="field-label">Members:</span>
+      <ol class="members-list" id="slip-members"></ol>
+    </div>
+  </div>
+
+  <!-- MATERIALS TABLE -->
+  <table class="materials-table">
+    <thead>
+      <tr>
+        <th>Materials</th>
+        <th>Volume/Size</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody id="slip-materials"></tbody>
+  </table>
+
+  <!-- EQUIPMENT LOG -->
+  <div class="equip-log" id="slip-equip-log-wrap" style="display:none;">
+    <strong>Equipment Log:</strong> <span id="slip-equip-log"></span>
+  </div>
+
+  <!-- SIGNATURES -->
+  <div class="signatures">
+    <div class="sig-col">
+      <div class="sig-label">Represented by:</div>
+      <div class="sig-line"></div>
+      <div class="sig-name" id="sig-requestor"></div>
+    </div>
+    <div class="sig-col">
+      <div class="sig-label">Noted by:</div>
+      <div class="sig-line"></div>
+      <div class="sig-name" id="sig-prof"></div>
+      <div class="sig-sub-label">Laboratory Custodian:</div>
+      <div class="sig-line"></div>
+    </div>
+  </div>
+
+  <script>
+    // Read data passed via sessionStorage
+    const data = JSON.parse(sessionStorage.getItem('reservation_slip') || '{}');
+
+    function esc(str) {
+      return String(str || '—')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    document.getElementById('slip-res-id').textContent       = `RES-${String(data.id || 0).padStart(3,'0')}`;
+    document.getElementById('slip-subject').textContent      = data.subject      || '—';
+    document.getElementById('slip-name').textContent         = data.fullName     || '—';
+    document.getElementById('slip-student-id').textContent   = data.studentId    || '—';
+    document.getElementById('slip-prof').textContent         = data.profName     || '—';
+    document.getElementById('slip-prof-email').textContent   = data.profEmail    || '—';
+    document.getElementById('slip-date-reserved').textContent= data.dateRequested|| '—';
+    document.getElementById('slip-date-borrowed').textContent= data.dateNeeded   || '—';
+    document.getElementById('slip-time').textContent         = data.time         || '—';
+    document.getElementById('slip-status').textContent       = data.status       || '—';
+    document.getElementById('slip-course').textContent       = data.course       || '—';
+    document.getElementById('slip-group').textContent        = data.groupNumber  || '—';
+    document.getElementById('sig-requestor').textContent     = data.fullName     || '';
+    document.getElementById('sig-prof').textContent          = data.profName     || '';
+
+    // Members
+    const membersList = document.getElementById('slip-members');
+    (data.members || []).forEach(m => {
+      const li = document.createElement('li');
+      li.textContent = m;
+      membersList.appendChild(li);
+    });
+    if (!(data.members || []).length) {
+      membersList.innerHTML = '<li>—</li>';
+    }
+
+    // Materials table — fill at least 10 rows
+    const tbody = document.getElementById('slip-materials');
+    const items = data.items || [];
+    const totalRows = Math.max(items.length, 10);
+    for (let i = 0; i < totalRows; i++) {
+      const item = items[i];
+      const match = item ? item.match(/^(.+?)\s*\(x(\d+)\)$/) : null;
+      const name  = match ? match[1] : (item || '');
+      const qty   = match ? match[2] : (item ? '1' : '');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${esc(name)}</td><td></td><td style="text-align:center;">${esc(qty)}</td>`;
+      tbody.appendChild(tr);
+    }
+
+    // Equipment log
+    if (data.equipmentLog) {
+      document.getElementById('slip-equip-log-wrap').style.display = '';
+      document.getElementById('slip-equip-log').textContent = data.equipmentLog;
+    }
+  </script>
+</body>
+</html>
