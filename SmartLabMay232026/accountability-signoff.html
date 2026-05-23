@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab – Sign Off</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: #205e38; }
+
+    .icon-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+    }
+
+    .icon-circle.loading { background: #e0f2fe; color: #0284c7; }
+    .icon-circle.success { background: #dcfce7; color: #16a34a; }
+    .icon-circle.error   { background: #fdecea; color: #e53935; }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 14.5px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">CAS<span>Laboratory</span></div>
+
+    <div class="icon-circle loading" id="icon-circle">
+      <i class='bx bx-loader-alt spinner' id="icon"></i>
+    </div>
+
+    <h2 id="title">Processing Sign-Off…</h2>
+    <p id="message">Please wait while we record your sign-off.</p>
+    <div class="badge" id="stage-badge" style="display:none;"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api';
+
+    const params  = new URLSearchParams(window.location.search);
+    const token   = params.get('token');
+    const stage   = params.get('stage');
+
+    const circle  = document.getElementById('icon-circle');
+    const icon    = document.getElementById('icon');
+    const title   = document.getElementById('title');
+    const message = document.getElementById('message');
+    const badge   = document.getElementById('stage-badge');
+
+    function showSuccess(msg, stageLabel) {
+      circle.className = 'icon-circle success';
+      icon.className   = 'bx bx-check-circle';
+      title.textContent   = 'Sign-Off Recorded!';
+      message.textContent = msg;
+      if (stageLabel) {
+        badge.textContent    = stageLabel;
+        badge.style.display  = 'inline-block';
+      }
+    }
+
+    function showError(msg) {
+      circle.className = 'icon-circle error';
+      icon.className   = 'bx bx-error-circle';
+      title.textContent   = 'Sign-Off Failed';
+      message.textContent = msg;
+    }
+
+    async function processSignOff() {
+      if (!token || !stage) {
+        showError('Invalid sign-off link. The link may be missing required information.');
+        return;
+      }
+
+      try {
+        const res  = await fetch(`${API_BASE}/accountability/signoff?token=${token}&stage=${stage}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.message || 'Something went wrong. The link may have already been used or expired.');
+          return;
+        }
+
+        showSuccess(
+          data.message || 'Thank you! Your sign-off has been recorded. The SmartLab staff will proceed with the next step.',
+          data.stage_label
+        );
+      } catch (err) {
+        showError('Could not connect to the SmartLab server. Please try again later.');
+      }
+    }
+
+    processSignOff();
+  </script>
+</body>
+</html>
