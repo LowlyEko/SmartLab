@@ -1,0 +1,393 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  user_id          Int              @id @default(autoincrement())
+  student_id       String?          @unique(map: "student_id") @db.VarChar(30)
+  first_name       String           @db.VarChar(100)
+  last_name        String           @db.VarChar(100)
+  email            String           @unique(map: "email") @db.VarChar(150)
+  college          String?          @db.VarChar(150)
+  year_level       Int              @db.SmallInt
+  section          String?          @db.VarChar(50)
+  is_active        Boolean          @default(true)
+  created_at       DateTime         @default(now()) @db.Timestamp(0)
+  updated_at       DateTime         @default(now()) @updatedAt @db.Timestamp(0)
+  user_type        String           @default("student") @db.VarChar(20)
+  accountabilities Accountability[]
+  reservations     Reservation[]
+
+  @@map("student")
+}
+
+model Admin {
+  admin_id                  Int               @id @default(autoincrement())
+  first_name                String            @db.VarChar(80)
+  last_name                 String            @db.VarChar(80)
+  email                     String            @unique(map: "email") @db.VarChar(150)
+  password                  String            @db.VarChar(255)
+  role                      String            @db.VarChar(20)
+  is_active                 Boolean           @default(true)
+  created_at                DateTime          @default(now()) @db.Timestamp(0)
+  updated_at                DateTime          @default(now()) @updatedAt @db.Timestamp(0)
+  accountabilities_received Accountability[]  @relation("ReceivedBy")
+  calendar_events           calendar_events[]
+  reservations_handled      Reservation[]     @relation("AdminHandled")
+  reservations_signed       Reservation[]     @relation("AdminSigned")
+
+  @@map("admin")
+}
+
+model Location {
+  location_id   BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  location_name String               @unique(map: "location_name") @db.VarChar(255)
+  apparatus     InventoryApparatus[]
+  equipment     InventoryEquipment[]
+  glassware     InventoryGlassware[]
+  supplies      InventorySupplies[]
+
+  @@map("locations")
+}
+
+model InventoryApparatus {
+  apparatus_id          BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  apparatus_name        String                  @db.VarChar(255)
+  description           String?                 @db.VarChar(255)
+  location_id           BigInt                  @db.UnsignedBigInt
+  remarks               String?                 @db.VarChar(255)
+  quantity              Int                     @default(0)
+  brand                 String?                 @db.VarChar(255)
+  location              Location                @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_apparatus_location")
+  reservation_apparatus reservation_apparatus[]
+
+  @@index([location_id], map: "fk_apparatus_location")
+  @@map("inventory_apparatus")
+}
+
+model InventoryChemical {
+  chemical_id        BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  barcode            BigInt?
+  item_code          Int?
+  location           String?               @db.VarChar(255)
+  date_in            DateTime?             @db.Date
+  expiration_date    DateTime?             @db.Date
+  chemical_name      String                @db.VarChar(255)
+  brand_manufacturer String?               @db.VarChar(255)
+  cas_no             String?               @db.VarChar(255)
+  storage_group      Int?
+  state              String?               @db.VarChar(255)
+  hazard             String?               @db.VarChar(255)
+  remarks            String?               @db.VarChar(255)
+  container_size     String?               @db.VarChar(255)
+  quantity           Int?
+  reservation_items  ReservationChemical[]
+
+  @@map("inventory_chemicals")
+}
+
+model InventoryEquipment {
+  equipment_id          BigInt                                     @id @default(autoincrement()) @db.UnsignedBigInt
+  equipment_name        String                                     @db.VarChar(255)
+  brand                 String?                                    @db.VarChar(255)
+  model                 String?                                    @db.VarChar(255)
+  serial_no             String?                                    @db.VarChar(255)
+  property_number       String?                                    @db.VarChar(255)
+  equipment_code        String?                                    @db.VarChar(255)
+  location_id           BigInt                                     @db.UnsignedBigInt
+  calibration_date      DateTime?                                  @db.Date
+  calibration_frequency inventory_equipment_calibration_frequency?
+  status                inventory_equipment_status                 @default(FUNCTIONAL)
+  remarks               String?                                    @db.VarChar(255)
+  quantity              Int                                        @default(1)
+  location              Location                                   @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_equipment_location")
+  reservation_equipment reservation_equipment[]
+
+  @@index([location_id], map: "fk_equipment_location")
+  @@map("inventory_equipment")
+}
+
+model InventoryGlassware {
+  glassware_id          BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  glassware             String                  @db.VarChar(255)
+  description           String?                 @db.VarChar(255)
+  location_id           BigInt                  @db.UnsignedBigInt
+  remarks               String?                 @db.VarChar(255)
+  quantity              Int                     @default(0)
+  brand                 String?                 @db.VarChar(255)
+  location              Location                @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_glassware_location")
+  reservation_glassware reservation_glassware[]
+
+  @@index([location_id], map: "fk_glassware_location")
+  @@map("inventory_glassware")
+}
+
+model InventorySupplies {
+  supplies_id          BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  supplies_name        String                 @db.VarChar(255)
+  brand                String?                @db.VarChar(255)
+  location_id          BigInt                 @db.UnsignedBigInt
+  quantity             Int                    @default(0)
+  quantity_unit        String?                @db.VarChar(100)
+  location             Location               @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplies_location")
+  reservation_supplies reservation_supplies[]
+
+  @@index([brand], map: "fk_supplies_brand")
+  @@index([location_id], map: "fk_supplies_location")
+  @@map("inventory_supplies")
+}
+
+model Reservation {
+  reservation_id        Int                     @id @default(autoincrement())
+  student_id            String                  @db.VarChar(30)
+  admin_id              Int?
+  prof_name             String?                 @db.VarChar(150)
+  prof_email            String?                 @db.VarChar(150)
+  subject               String                  @db.VarChar(150)
+  date_reserved         DateTime                @db.Date
+  date_borrowed         DateTime                @db.Date
+  time_start            DateTime?               @db.Time(0)
+  time_end              DateTime?               @db.Time(0)
+  course_year_section   String?                 @db.VarChar(100)
+  group_number          Int?
+  type                  reservation_type
+  equipment_log         String?                 @db.VarChar(255)
+  status                String                  @default("Pending") @db.VarChar(50)
+  conditional_remarks   String?                 @db.VarChar(500)
+  signed_by_admin_id    Int?
+  created_at            DateTime                @default(now()) @db.Timestamp(0)
+  accountabilities      Accountability[]
+  admin                 Admin?                  @relation("AdminHandled", fields: [admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_reservation_admin")
+  signed_by             Admin?                  @relation("AdminSigned", fields: [signed_by_admin_id], references: [admin_id], onUpdate: NoAction, map: "fk_reservation_signer")
+  student               Student                 @relation(fields: [student_id], references: [student_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reservation_student")
+  reservation_apparatus reservation_apparatus[]
+  reservation_equipment reservation_equipment[]
+  reservation_glassware reservation_glassware[]
+  reservation_supplies  reservation_supplies[]
+  chemical_items        ReservationChemical[]
+  reservationequipment  reservationequipment[]
+  members               ReservationMember[]
+
+  @@index([admin_id], map: "fk_reservation_admin")
+  @@index([signed_by_admin_id], map: "fk_reservation_signer")
+  @@index([date_borrowed], map: "idx_reservation_date")
+  @@index([status], map: "idx_reservation_status")
+  @@index([student_id], map: "idx_reservation_student")
+  @@map("reservation")
+}
+
+model ReservationMember {
+  member_id      Int         @id @default(autoincrement())
+  reservation_id Int
+  name           String      @db.VarChar(200)
+  reservation    Reservation @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_members_reservation")
+
+  @@index([reservation_id], map: "idx_members_reservation")
+  @@map("reservationmembers")
+}
+
+model ReservationChemical {
+  id             Int               @id @default(autoincrement())
+  reservation_id Int
+  chemical_id    BigInt            @db.UnsignedBigInt
+  quantity       Int               @default(1)
+  remarks        String?           @db.VarChar(255)
+  chemical       InventoryChemical @relation(fields: [chemical_id], references: [chemical_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_rc_chemical")
+  reservation    Reservation       @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_rc_reservation")
+
+  @@index([chemical_id], map: "fk_rc_chemical")
+  @@index([reservation_id], map: "idx_rc_reservation")
+  @@map("reservationchemicals")
+}
+
+model Accountability {
+  accountability_id      Int                        @id @default(autoincrement())
+  student_id             String?                    @db.VarChar(30)
+  student_name           String?                    @db.VarChar(200)
+  reservation_id         Int?
+  date_borrowed          DateTime                   @db.Date
+  member_name            String                     @db.VarChar(200)
+  materials_broken       String                     @db.VarChar(255)
+  prof_name              String                     @db.VarChar(150)
+  subject                String                     @db.VarChar(150)
+  time_start             DateTime?                  @db.Time(0)
+  time_end               DateTime?                  @db.Time(0)
+  program_course_section String                     @db.VarChar(100)
+  deadline               DateTime?                  @db.Date
+  remarks                String?                    @db.VarChar(500)
+  date_replaced          DateTime?                  @db.Date
+  received_by            Int?
+  created_at             DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at             DateTime                   @default(now()) @updatedAt @db.Timestamp(0)
+  email_stage            accountability_email_stage @default(none)
+  feedback_token         String?                    @unique @db.VarChar(100)
+  last_notified_at       DateTime?                  @db.Timestamp(0)
+  prof_email             String?                    @db.VarChar(150)
+  prof_responded_at      DateTime?                  @db.Timestamp(0)
+  prof_response          String?                    @db.VarChar(1000)
+  resolved               Boolean                    @default(false)
+  resolved_at            DateTime?                  @db.Timestamp(0)
+  receiver               Admin?                     @relation("ReceivedBy", fields: [received_by], references: [admin_id], onUpdate: NoAction, map: "fk_accountability_admin")
+  reservation            Reservation?               @relation(fields: [reservation_id], references: [reservation_id], onUpdate: NoAction, map: "fk_accountability_reservation")
+  student                Student?                   @relation(fields: [student_id], references: [student_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_accountability_student")
+  logs                   AccountabilityLog[]
+  members                AccountabilityMember[]
+
+  @@index([received_by], map: "fk_accountability_admin")
+  @@index([reservation_id], map: "fk_accountability_reservation")
+  @@index([student_id], map: "idx_accountability_student")
+  @@index([email_stage], map: "idx_accountability_stage")
+  @@index([resolved], map: "idx_accountability_resolved")
+  @@map("accountability")
+}
+
+model AccountabilityLog {
+  log_id            Int                        @id @default(autoincrement())
+  accountability_id Int
+  stage             accountability_email_stage
+  action            accountability_log_action
+  notes             String?                    @db.VarChar(1000)
+  performed_by      String?                    @db.VarChar(50)
+  created_at        DateTime                   @default(now()) @db.Timestamp(0)
+  accountability    Accountability             @relation(fields: [accountability_id], references: [accountability_id], onDelete: Cascade, map: "fk_log_accountability")
+
+  @@index([accountability_id], map: "idx_log_accountability")
+  @@map("accountability_logs")
+}
+
+model AccountabilityMember {
+  id                Int            @id @default(autoincrement())
+  accountability_id Int
+  member_name       String         @db.VarChar(200)
+  member_order      Int            @default(0) @db.TinyInt
+  accountability    Accountability @relation(fields: [accountability_id], references: [accountability_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_am_accountability")
+
+  @@index([accountability_id], map: "idx_am_accountability")
+  @@map("accountability_members")
+}
+
+model reservation_apparatus {
+  id                  Int                @id @default(autoincrement())
+  reservation_id      Int
+  apparatus_id        BigInt             @db.UnsignedBigInt
+  quantity            Int                @default(1)
+  remarks             String?            @db.VarChar(255)
+  inventory_apparatus InventoryApparatus @relation(fields: [apparatus_id], references: [apparatus_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ra_apparatus")
+  reservation         Reservation        @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ra_reservation")
+
+  @@index([apparatus_id], map: "idx_ra_apparatus")
+  @@index([reservation_id], map: "idx_ra_reservation")
+}
+
+model reservation_equipment {
+  id                  Int                @id @default(autoincrement())
+  reservation_id      Int
+  equipment_id        BigInt             @db.UnsignedBigInt
+  quantity            Int                @default(1)
+  remarks             String?            @db.VarChar(255)
+  inventory_equipment InventoryEquipment @relation(fields: [equipment_id], references: [equipment_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_req_equipment")
+  reservation         Reservation        @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_req_reservation")
+
+  @@index([equipment_id], map: "idx_req_equipment")
+  @@index([reservation_id], map: "idx_req_reservation")
+}
+
+model reservation_glassware {
+  id                  Int                @id @default(autoincrement())
+  reservation_id      Int
+  glassware_id        BigInt             @db.UnsignedBigInt
+  quantity            Int                @default(1)
+  remarks             String?            @db.VarChar(255)
+  inventory_glassware InventoryGlassware @relation(fields: [glassware_id], references: [glassware_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_rg_glassware")
+  reservation         Reservation        @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_rg_reservation")
+
+  @@index([glassware_id], map: "idx_rg_glassware")
+  @@index([reservation_id], map: "idx_rg_reservation")
+}
+
+model reservation_supplies {
+  id                 Int               @id @default(autoincrement())
+  reservation_id     Int
+  supplies_id        BigInt            @db.UnsignedBigInt
+  quantity           Int               @default(1)
+  remarks            String?           @db.VarChar(255)
+  reservation        Reservation       @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_rs_reservation")
+  inventory_supplies InventorySupplies @relation(fields: [supplies_id], references: [supplies_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_rs_supplies")
+
+  @@index([reservation_id], map: "idx_rs_reservation")
+  @@index([supplies_id], map: "idx_rs_supplies")
+}
+
+model reservationequipment {
+  id             Int                            @id @default(autoincrement())
+  reservation_id Int
+  item_type      reservationequipment_item_type
+  item_id        BigInt                         @db.UnsignedBigInt
+  quantity       Int                            @default(1)
+  remarks        String?                        @db.VarChar(255)
+  reservation    Reservation                    @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_re_reservation")
+
+  @@index([item_type, item_id], map: "idx_re_item_type_id")
+  @@index([reservation_id], map: "idx_re_reservation")
+}
+
+model calendar_events {
+  event_id   Int       @id @default(autoincrement()) @db.UnsignedInt
+  label      String    @db.VarChar(255)
+  date       DateTime  @db.Date
+  type       String    @default("man") @db.VarChar(20)
+  created_by Int?
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  admin      Admin?    @relation(fields: [created_by], references: [admin_id], onUpdate: NoAction, map: "fk_calendar_admin")
+
+  @@index([created_by], map: "fk_calendar_admin")
+  @@index([date], map: "idx_calendar_date")
+}
+
+enum inventory_equipment_calibration_frequency {
+  Annual
+  Semi_Annual @map("Semi-Annual")
+  Monthly
+  As_Needed   @map("As Needed")
+}
+
+enum inventory_equipment_status {
+  FUNCTIONAL
+  NOT_FUNCTIONAL @map("NOT FUNCTIONAL")
+  FOR_REPAIR     @map("FOR REPAIR")
+  NEW
+}
+
+enum reservation_type {
+  chemicals
+  materials
+}
+
+enum reservationequipment_item_type {
+  equipment
+  apparatus
+  glassware
+  supplies
+}
+
+enum accountability_email_stage {
+  none
+  student
+  professor
+  dean
+  resolved
+}
+
+enum accountability_log_action {
+  email_sent
+  response_received
+  escalated
+  resolved
+  reopened
+  note_added
+}

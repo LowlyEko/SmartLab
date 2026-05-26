@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLab - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    /* ── Summary cards clickable ── */
+    .summary-card {
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .summary-card:hover { transform: translateY(-5px); box-shadow: 0 10px 28px rgba(0,0,0,0.13); }
+
+    /* ── Quick Actions ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .quick-action-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .quick-action-btn i { font-size: 28px; color: var(--primary); }
+    .quick-action-btn:hover {
+      border-color: var(--primary);
+      background: #f0f7f3;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(32,94,56,0.12);
+    }
+    body.dark .quick-action-btn:hover { background: #1e2f22; }
+
+    /* ── Upcoming list items ── */
+    .upcoming-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 8px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .upcoming-item:hover { background: #f4faf6; }
+    body.dark .upcoming-item:hover { background: #1e2f22; }
+    .upcoming-item:last-child { border-bottom: none; }
+
+    /* ── Profile dropdown ── */
+    .profile-wrap { position: relative; }
+    .profile-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 30px; padding: 7px 16px 7px 10px;
+      cursor: pointer; color: var(--text); font-size: 0.9rem; font-weight: 600;
+    }
+    .profile-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .profile-dropdown {
+      display: none; position: absolute; right: 0; top: calc(100% + 8px);
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      min-width: 180px; z-index: 200; overflow: hidden;
+    }
+    .profile-dropdown.open { display: block; }
+    .profile-dropdown a, .profile-dropdown button {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; width: 100%; text-align: left;
+      background: none; border: none; color: var(--text);
+      font-size: 0.88rem; font-weight: 500; cursor: pointer;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .profile-dropdown a:hover, .profile-dropdown button:hover { background: #f4faf6; }
+    body.dark .profile-dropdown a:hover, body.dark .profile-dropdown button:hover { background: #1e2f22; }
+    .profile-dropdown .logout-btn { color: #c62828; }
+    .profile-dropdown hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+    /* ── Section header row ── */
+    .section-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .section-row a {
+      font-size: 0.82rem; color: var(--primary); font-weight: 600;
+      text-decoration: none;
+    }
+    .section-row a:hover { text-decoration: underline; }
+
+    /* ── Status badge extras ── */
+    .status-badge.to_review  { background: #fff8e1; color: #f59e0b; }
+    .status-badge.allowed    { background: #e8f5e9; color: #2e7d32; }
+    .status-badge.rejected   { background: #fdecea; color: #c62828; }
+    .status-badge.conditional { background: #e3f2fd; color: #1565c0; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="../admin/CAS Logo.png" alt="CAS Logo" onerror="this.style.display='none'">
+        </span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+          <div class="portal-label">Student Portal</div>
+        </div>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="index.html" class="active"><i class="bx bxs-dashboard icon"></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservations.html"><i class="bx bx-calendar-check icon"></i><span class="text nav-text">Reservations</span></a></li>
+          <li class="nav-link"><a href="inventory.html"><i class="bx bx-package icon"></i><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="accountability.html"><i class="bx bx-shield icon"></i><span class="text nav-text">Accountability</span></a></li>
+        </ul>
+      </div>
+      <div class="bottom-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class="bx bx-moon icon moon"></i>
+            <i class="bx bx-sun icon sun"></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <h1>Welcome back, <span id="student-name">Student</span>!</h1>
+      <div class="profile-wrap">
+        <button class="profile-btn" id="profile-toggle">
+          <div class="profile-avatar" id="profile-avatar">S</div>
+          <span id="profile-name">My Account</span>
+          <i class='bx bx-chevron-down'></i>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown">
+          <button class="logout-btn" id="logout-btn"><i class='bx bx-log-out'></i> Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Cards (clickable) -->
+    <div class="summary-cards">
+      <a href="reservations.html" class="summary-card">
+        <div class="summary-icon"><i class='bx bx-time-five'></i></div>
+        <div>
+          <div class="summary-label">Pending Reservations</div>
+          <div class="summary-value" id="pending-res">—</div>
+        </div>
+      </a>
+      <a href="reservations.html" class="summary-card">
+        <div class="summary-icon" style="background:#e8f5e9;color:#2e7d32;"><i class='bx bx-check-circle'></i></div>
+        <div>
+          <div class="summary-label">Approved</div>
+          <div class="summary-value" id="approved-res">—</div>
+        </div>
+      </a>
+      <a href="accountability.html" class="summary-card">
+        <div class="summary-icon" style="background:#fdecea;color:#c62828;"><i class='bx bx-error'></i></div>
+        <div>
+          <div class="summary-label">Accountability</div>
+          <div class="summary-value" id="acc-count">—</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Upcoming Reservations -->
+    <div class="card">
+      <div class="section-row">
+        <h2>Upcoming Reservations</h2>
+        <a href="reservations.html">View all →</a>
+      </div>
+      <div id="upcoming-list">
+        <p style="color:#aaa; text-align:center; padding:20px;">Loading...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+  <script src="js/sidebar.js"></script>
+</body>
+</html>
