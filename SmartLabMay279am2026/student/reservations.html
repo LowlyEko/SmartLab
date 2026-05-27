@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservations - CAS Laboratory</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    /* --- Modal & Layout Styles --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.open { display: flex; }
+    
+    .modal-box {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* --- Equipment Checklist Grid (Monitoring Log Style) --- */
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #eef0f2;
+      margin-top: 10px;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .checklist-item input {
+      width: 18px; height: 18px;
+      cursor: pointer;
+      accent-color: #27ae60;
+    }
+
+    /* --- Dynamic Row Styles (Materials & Members) --- */
+    .dynamic-list-container {
+      margin-top: 10px;
+      border: 1px dashed #cbd5e0;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .dynamic-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .btn-add-small {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-remove {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    hr { border: 0; border-top: 1px solid #eee; margin: 25px 0; }
+    .section-title { font-weight: 700; font-size: 1rem; color: #2d3748; }
+
+    /* Searchable combobox for materials */
+    .mat-combobox { display: flex; flex-direction: column; }
+    .mat-search-input {
+      padding: 7px 10px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #2d3748;
+    }
+    .mat-search-input:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 0 2px rgba(39,174,96,0.15);
+    }
+    .mat-dropdown-list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #cbd5e0;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      margin: 0; padding: 0;
+      list-style: none;
+      z-index: 999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .mat-dropdown-list li {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #2d3748;
+      cursor: pointer;
+    }
+    .mat-dropdown-list li:hover { background: #f0faf4; color: #27ae60; }
+
+    /* --- Student ID banner (shown only when student_id is null) --- */
+    #student-id-section {
+      display: none;
+      background: #fffbea;
+      border: 1.5px solid #D4B84A;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    #student-id-section .sid-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #7a6010;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #student-id-section .sid-label i { font-size: 15px; color: #D4B84A; }
+    #student-id-section p {
+      font-size: 0.78rem;
+      color: #8a7020;
+      margin-bottom: 10px;
+    }
+    #student-id-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #D4B84A;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: 'Poppins', sans-serif;
+      color: #2d3748;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #student-id-input:focus {
+      border-color: #205e38;
+      box-shadow: 0 0 0 3px rgba(32,94,56,0.12);
+    }
+    #student-id-input.sid-error { border-color: #e74c3c; }
+
+    /* Edit button style */
+    .action-btn.edit-btn { color: #2980b9; }
+    .action-btn.edit-btn:hover { background: #e8f4fd; border-color: #2980b9; }
+
+    /* Select styling for dark mode */
+    body.dark select {
+      background: var(--card-bg);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    /* ── Reservation Controls Row ── */
+    .res-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .res-controls .search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid #6a737b;
+      background: white;
+      flex: 0 0 260px;
+    }
+    .res-controls .search-box i { flex-shrink: 0; font-size: 16px; color: #6a737b; }
+    .res-controls .search-box:hover { border-color: #27ae60; }
+    .res-controls .search-box:focus-within { border: 1.5px solid #27ae60; }
+    .res-controls .search-box input {
+      flex: 1; border: none; outline: none;
+      font-family: 'Poppins', sans-serif; font-size: 14px;
+      background: transparent; color: inherit;
+    }
+    body.dark .res-controls .search-box { background: var(--card-bg); border-color: #444; }
+    body.dark .res-controls .search-box:focus-within { border-color: #27ae60; }
+
+    .res-dropdown { position: relative; display: inline-block; }
+
+    .res-dropdown-btn {
+      display: inline-flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 0 12px; height: 38px;
+      border-radius: 8px; border: 1px solid #6a737b;
+      background: white; cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 14px;
+      font-weight: 500; color: #556371;
+      min-width: 140px; white-space: nowrap;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .res-dropdown-btn i { font-size: 12px; transition: transform 0.2s; }
+    .res-dropdown-btn:hover, .res-dropdown-btn.open {
+      background: #205e38; color: #fff; border-color: #205e38;
+    }
+    .res-dropdown-btn.open i { transform: rotate(180deg); }
+
+    .res-dropdown-menu {
+      display: none; position: absolute; top: 44px; left: 0;
+      min-width: 180px; background: white;
+      border-radius: 10px; border: 1px solid #ccc;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 300; padding: 6px 0;
+    }
+    .res-dropdown-menu.open { display: block; }
+    .res-dropdown-menu .item {
+      position: relative; padding: 10px 14px 10px 34px;
+      font-size: 14px; cursor: pointer; color: #1d2125;
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.15s, color 0.15s;
+    }
+    .res-dropdown-menu .item.active::before {
+      content: "✔"; position: absolute; left: 12px;
+      font-size: 14px; color: #205e38;
+    }
+    .res-dropdown-menu .item:hover { background: #D4B84A; color: #fff; }
+    .res-dropdown-menu .item.active:hover::before { color: #fff; }
+
+    body.dark .res-dropdown-btn { background: var(--card-bg); border-color: #444; color: #ccc; }
+    body.dark .res-dropdown-btn:hover,
+    body.dark .res-dropdown-btn.open { background: #1e3a2a; border-color: #6fcf97; color: #6fcf97; }
+    body.dark .res-dropdown-menu { background: var(--card-bg); border-color: #444; }
+    body.dark .res-dropdown-menu .item { color: #ccc; }
+    body.dark .res-dropdown-menu .item.active::before { color: #6fcf97; }
+    body.dark .res-dropdown-menu .item:hover { background: #D4B84A; color: #fff; }
+
+    /* Sortable column headers */
+    .data-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+    .data-table th.sortable:hover { background: #eef2ee; }
+    body.dark .data-table th.sortable:hover { background: #1e2f22; }
+    .sort-icon { margin-left: 4px; opacity: 0.45; font-size: 11px; }
+    .data-table th.sort-asc .sort-icon,
+    .data-table th.sort-desc .sort-icon { opacity: 1; color: #205e38; }
+    body.dark .data-table th.sort-asc .sort-
+      </style>
+    </head>
+    <body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="../admin/CAS Logo.png" alt="CAS Logo" onerror="this.style.display='none'">
+        </span>
+        <div class="text header-text">
+          <div class="brand-name">CAS<span class="name">Laboratory</span></div>
+          <div class="portal-label">Student Portal</div>
+        </div>
+      </div>
+    </header>
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links">
+          <li class="nav-link"><a href="index.html"><i class="bx bxs-dashboard icon"></i><span class="text nav-text">Dashboard</span></a></li>
+          <li class="nav-link"><a href="reservations.html" class="active"><i class="bx bx-calendar-check icon"></i><span class="text nav-text">Reservations</span></a></li>
+          <li class="nav-link"><a href="inventory.html"><i class="bx bx-package icon"></i><span class="text nav-text">Inventory</span></a></li>
+          <li class="nav-link"><a href="accountability.html"><i class="bx bx-shield icon"></i><span class="text nav-text">Accountability</span></a></li>
+        </ul>
+      </div>
+      <div class="bottom-content">
+        <li class="mode">
+          <div class="moon-sun">
+            <i class="bx bx-moon icon moon"></i>
+            <i class="bx bx-sun icon sun"></i>
+          </div>
+          <span class="mode-text text">Dark Mode</span>
+          <div class="toggle-switch"><span class="switch"></span></div>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+<div class="main-content">
+    <div class="topbar">
+      <h1>Reservations</h1>
+      <button class="btn-add" onclick="openNewReservationModal()">
+        <i class='bx bx-plus'></i> New Request
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="table-header-bar">
+        <h2>My Reservation History</h2>
+        <span id="table-meta">Syncing with server...</span>
+      </div>
+
+      <!-- Controls: Search + Status Filter -->
+      <div class="res-controls">
+        <div class="search-box">
+          <i class='bx bx-search'></i>
+          <input type="text" id="res-search" placeholder="Search subject, ID..." oninput="applyFilters()">
+        </div>
+
+        <div class="res-dropdown" id="resStatusDrop">
+          <button class="res-dropdown-btn" type="button" id="resStatusBtn" onclick="toggleResDropdown('resStatusDrop')">
+            <span id="resStatusLabel">All Status</span>
+            <i class='bx bx-chevron-down'></i>
+          </button>
+          <div class="res-dropdown-menu" id="resStatusMenu">
+            <div class="item active" data-value="" onclick="selectResStatus(this, '')">All Status</div>
+            <div class="item" data-value="Pending" onclick="selectResStatus(this, 'Pending')">Pending</div>
+            <div class="item" data-value="Approved" onclick="selectResStatus(this, 'Approved')">Approved</div>
+            <div class="item" data-value="Rejected" onclick="selectResStatus(this, 'Rejected')">Rejected</div>
+            <div class="item" data-value="CONDITIONAL" onclick="selectResStatus(this, 'CONDITIONAL')">Conditional</div>
+          </div>
+        </div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="reservation_id" onclick="sortTable('reservation_id')">
+              Reservation ID <span class="sort-icon">↕</span>
+            </th>
+            <th>Subject</th>
+            <th>Date Reserved</th>
+            <th class="sortable" data-col="date_borrowed" onclick="sortTable('date_borrowed')">
+              Date Borrowed <span class="sort-icon">↕</span>
+            </th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reservations-tbody"></tbody>
+      </table>
+    </div>
+    </div>
+  </div>
+
+  <!-- ══ New / Edit Reservation Modal ══════════════════════════════════════ -->
+  <div id="new-res-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 id="modal-title" style="color: var(--text);">Lab Reservation Form</h2>
+        <span onclick="closeModal()" style="cursor:pointer; font-size:24px;">&times;</span>
+      </div>
+
+      <form id="new-reservation-form">
+
+        <!-- ── Student ID field (only visible when not yet set) ── -->
+        <div id="student-id-section">
+          <div class="sid-label">
+            <i class='bx bx-id-card'></i>
+            Student ID Required
+          </div>
+          <p>We don't have your Student ID yet. Enter it once here and it will be saved to your account.</p>
+          <input
+            type="text"
+            id="student-id-input"
+            placeholder="e.g. 2021-00123"
+            maxlength="30"
+            autocomplete="off"
+          >
+        </div>
+
+        <!-- ── Subject ── -->
+        <div class="form-group">
+          <label>Subject *</label>
+          <input type="text" id="subject" placeholder="e.g. General Chemistry 1" required>
+        </div>
+
+        <!-- ── Date Borrowed & Group # ── -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date Needed *</label>
+            <input type="date" id="date-needed" required>
+          </div>
+          <div class="form-group">
+            <label>Group # (Optional)</label>
+            <input type="text" id="group-number" placeholder="e.g. Group 1">
+          </div>
+        </div>
+
+        <!-- ── Time Start / End ── -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Time Start *</label>
+            <input type="time" id="time-start" required>
+          </div>
+          <div class="form-group">
+            <label>Time End *</label>
+            <input type="time" id="time-end" required>
+          </div>
+        </div>
+
+        <!-- ── Course / Year / Section ── -->
+        <div class="form-group">
+          <label>Course / Year / Section *</label>
+          <input type="text" id="course-year-section" placeholder="e.g. BS Biology 2-A" required>
+        </div>
+
+        <!-- ── Reservation Type ── -->
+        <div class="form-group">
+          <label>Type *</label>
+          <select id="reservation-type" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e0; border-radius:8px; font-size:0.88rem; font-family:inherit; color:#2d3748; background:#fff; outline:none;">
+            <option value="">-- Select Type --</option>
+            <option value="chemicals">Reservation Chemicals</option>
+            <option value="materials">Reservation Materials</option>
+          </select>
+        </div>
+
+        <hr>
+
+        <!-- ── Equipment Checklist (hidden for chemicals type) ── -->
+        <div id="equipment-section">
+          <div class="form-group">
+            <label class="section-title"><i class='bx bx-list-check'></i> Equipment Monitoring Log</label>
+            <p style="font-size: 0.75rem; color: #718096; margin-bottom: 8px;">Check common equipment to use during activity.</p>
+            <div id="equipment-checklist" class="checklist-grid"></div>
+          </div>
+        </div>
+
+        <!-- ── Materials & Glassware ── -->
+        <div class="form-group" style="margin-top: 25px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label class="section-title" id="materials-label"><i class='bx bx-test-tube'></i> Materials & Glassware</label>
+            <button type="button" class="btn-add-small" onclick="addItemRow()">+ Add Material</button>
+          </div>
+          <div id="materials-container" class="dynamic-list-container"></div>
+        </div>
+
+        <hr>
+
+        <!-- ── Group Members ── -->
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label class="section-title"><i class='bx bx-group'></i> Group Members</label>
+            <button type="button" class="btn-add-small" onclick="addMemberRow()">+ Add Member</button>
+          </div>
+          <div id="members-container" class="dynamic-list-container"></div>
+        </div>
+
+        <hr>
+
+        <!-- ── Professor Details (after Group Members) ── -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Professor Name *</label>
+            <input type="text" id="prof-name" placeholder="e.g. Dr. Juan dela Cruz" required>
+          </div>
+          <div class="form-group">
+            <label>Professor Email *</label>
+            <input type="email" id="prof-email" placeholder="e.g. jdelacruz@cas.edu" required>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button type="submit" id="submit-btn" class="btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Details Modal -->
+  <div id="view-res-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:620px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color:var(--text);">Reservation Details</h2>
+        <span onclick="closeViewModal()" style="cursor:pointer; font-size:24px; color:var(--text);">&times;</span>
+      </div>
+      <div id="view-res-content"></div>
+      <div class="modal-actions" style="margin-top:24px;">
+        <button class="btn-cancel" onclick="closeViewModal()">Close</button>
+        <button id="cancel-res-btn" class="btn-danger" style="display:none;" onclick="confirmCancel()">
+          <i class="bx bx-x-circle"></i> Cancel Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Cancel Modal -->
+  <div id="confirm-cancel-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:420px; text-align:center;">
+      <div style="font-size:52px; margin-bottom:12px;">&#9888;&#65039;</div>
+      <h2 style="color:var(--text); margin-bottom:10px;">Cancel Reservation?</h2>
+      <p style="color:#888; margin-bottom:24px;">This action cannot be undone. Are you sure you want to cancel this reservation?</p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button class="btn-cancel" onclick="closeConfirmModal()">Go Back</button>
+        <button id="confirm-cancel-yes" class="btn-danger" onclick="executeCancelReservation()">
+          <i class="bx bx-check"></i> Yes, Cancel It
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .btn-danger {
+      background: #c62828; color: white; border: none;
+      padding: 11px 22px; border-radius: 10px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center;
+      gap: 8px; font-family: "Poppins", sans-serif; font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: #a31f1f; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+    .detail-field label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    body.dark .detail-field label { color: #aaa; }
+    .detail-field span { font-size: 0.95rem; font-weight: 500; color: var(--text); }
+
+    .detail-section-title {
+      font-size: 0.8rem; font-weight: 700; color: #888;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin: 18px 0 10px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    body.dark .detail-section-title { color: #aaa; }
+
+    .detail-items-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .detail-items-list li {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.88rem; color: var(--text);
+      padding: 6px 10px; background: var(--main-bg); border-radius: 6px;
+    }
+    .detail-items-list li i { color: #D4B84A; font-size: 16px; }
+
+    .detail-notes {
+      background: var(--main-bg); border-radius: 8px;
+      padding: 12px 14px; font-size: 0.88rem; color: var(--text); margin-top: 4px; line-height: 1.6;
+    }
+
+    .action-btn {
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 6px 10px; cursor: pointer;
+      color: var(--primary); font-size: 18px;
+      display: inline-flex; align-items: center; transition: all 0.2s;
+    }
+    .action-btn:hover { background: #e8f5e9; border-color: var(--primary); }
+    body.dark .action-btn:hover { background: #1e2f22; }
+  </style>
+
+  <script type="module" src="js/reservation.js"></script>
+  <script src="js/sidebar.js"></script>
+</body>
+</html>
